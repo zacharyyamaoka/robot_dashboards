@@ -1,0 +1,49 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "robot-dashboards"
+version = "0.1.0"
+description = "Stock Rerun dashboards for common robotics use cases (object detection, grasping, trajectory generation, ...) on robot_msgs types."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE", "src/robot_dashboards/assets/ur5e/LICENSE.ur_description"]
+authors = [{ name = "Zach Yamaoka" }]
+requires-python = ">=3.11"
+keywords = ["robotics", "rerun", "dashboard", "visualization", "robot_msgs", "blueprint"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Visualization",
+]
+dependencies = [
+    "numpy>=1.26",
+    # WHY robot-msg-viz: each dashboard logs its messages through the stock per-type views and streams
+    # through its Stream, so a dashboard and viz.show(msg) draw a type the same way.
+    "robot-msg-viz>=0.1.0",
+    "rerun-sdk==0.40.0",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
+[project.entry-points."robot_msg_viz.gallery"]
+# WHY an entry point: robot_msg_viz's landing page lists these use cases without importing this package.
+robot_dashboards = "robot_dashboards.gallery:entries"
+
+[project.urls]
+Homepage = "https://github.com/zacharyyamaoka/robot_dashboards"
+Repository = "https://github.com/zacharyyamaoka/robot_dashboards"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/robot_dashboards"]
+
+[tool.uv.sources]
+robot-msg-viz = { path = "/home/bam/robot_msg_viz", editable = true }
+robot-msgs = { path = "/home/bam/robot_msgs", editable = true }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

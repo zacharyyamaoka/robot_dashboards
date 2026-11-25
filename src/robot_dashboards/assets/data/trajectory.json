@@ -1,0 +1,38 @@
+{
+ "workspace-dev-029": {
+  "kind": "via_points",
+  "split": "dev",
+  "tags": [
+   "Multi waypoint"
+  ],
+  "duration_s": 3.2,
+  "samples": 321,
+  "joint_names": [
+   "shoulder_pan_joint",
+   "shoulder_lift_joint",
+   "elbow_joint",
+   "wrist_1_joint",
+   "wrist_2_joint",
+   "wrist_3_joint"
+  ],
+  "tool_frame": "base"
+ },
+ "workspace-dev-003": {
+  "kind": "a_to_b_joint",
+  "split": "dev",
+  "tags": [
+   "A to B"
+  ],
+  "duration_s": 1.76,
+  "samples": 177,
+  "joint_names": [
+   "shoulder_pan_joint",
+   "shoulder_lift_joint",
+   "elbow_joint",
+   "wrist_1_joint",
+   "wrist_2_joint",
+   "wrist_3_joint"
+  ],
+  "tool_frame": "base"
+ }
+}
