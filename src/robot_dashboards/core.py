@@ -93,7 +93,9 @@ def save(path: str | Path, key: str, ticks: list[Tick] | None = None) -> Path:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     rec = rr.RecordingStream(application_id(key))
-    rec.save(str(path), default_blueprint=dashboard.blueprint())
+    bp = dashboard.blueprint()
+    rec.save(str(path), default_blueprint=bp)
+    rec.send_blueprint(bp)  # WHY: default_blueprint= alone loses to a layout the viewer remembers for this app id
     _write(rec, dashboard, dashboard.sample() if ticks is None else ticks)
     rec.flush()
     rec.disconnect()

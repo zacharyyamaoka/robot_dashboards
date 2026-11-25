@@ -1,0 +1,67 @@
+{
+ "about": "The four tool poses bam_ruckig was given for the UR5e trajectory in ../data/workspace-dev-029.npz: the start, two via points and the end (ruckig_form via). Tool = the dataset station TCP (flange + 0.144 m, the BAM claw), in the URDF root link base_link_ur, metres and xyzw quaternions.",
+ "source": "trajectory_tracking_agent datasets/ur5e_alone/workspace/v2/tasks.jsonl, task workspace-dev-029, field keyposes (4x4); a byte-for-byte copy of arm_motion_bench datasets/ur5e_alone/workspace/v2 (1ba1d8c, 2026-11-23)",
+ "tasks_jsonl_sha256": "e15b8a582014c3d5642fa67f54d549161d80be918428cabc7585710b4ee77e50",
+ "limits": {
+  "max_jerk_rad_s3": 60.0,
+  "why": "the dataset README: timed by bam_ruckig (jerk-limited, time-optimal) at the UR5e limits pi rad/s, 6 rad/s2, 60 rad/s3 per joint; the npz carries lo/hi/vmax/amax but not the jerk limit"
+ },
+ "waypoints": [
+  {
+   "name": "start",
+   "position": [
+    0.094479676,
+    0.382075592,
+    0.70850423
+   ],
+   "orientation_xyzw": [
+    -0.127539473,
+    0.69049137,
+    0.710659187,
+    0.043804923
+   ]
+  },
+  {
+   "name": "via a",
+   "position": [
+    0.169555171,
+    0.060552413,
+    0.789744298
+   ],
+   "orientation_xyzw": [
+    -0.244229786,
+    0.247361996,
+    0.908471027,
+    0.232043631
+   ]
+  },
+  {
+   "name": "via b",
+   "position": [
+    0.142962358,
+    0.172194258,
+    0.928345377
+   ],
+   "orientation_xyzw": [
+    0.235278026,
+    -0.174143216,
+    0.822851862,
+    -0.487065914
+   ]
+  },
+  {
+   "name": "end",
+   "position": [
+    -0.132772996,
+    -0.257727865,
+    0.891501324
+   ],
+   "orientation_xyzw": [
+    -0.306180744,
+    0.712446555,
+    -0.357156111,
+    0.520684906
+   ]
+  }
+ ]
+}
