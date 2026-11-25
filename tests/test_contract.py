@@ -58,7 +58,7 @@ def test_gallery_rrd_loads_with_a_blueprint_whose_views_have_data(dashboard, tmp
     contents = read(path)
     assert contents.data_paths
     assert contents.has_viewport and contents.default_blueprint
-    views = views_in(dashboard.blueprint())
+    views = views_in(dashboard.renderer("rerun").blueprint())  # ruler amendment 2026-11-24 (viewers=), before any evaluation
     assert len(views) >= 2, "a dashboard composes several views"
     for view in views:
         assert covers(contents, str(view.origin)), f"{type(view).__name__} at {view.origin} shows nothing"

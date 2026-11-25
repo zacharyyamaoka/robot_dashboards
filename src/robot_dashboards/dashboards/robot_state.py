@@ -50,7 +50,7 @@ from robot_msgs.sensor import Imu, JointState
 from robot_msgs.std import DiagnosticRecord, Header
 
 from robot_dashboards.assets import UR5E_TRAJECTORY, UR5E_URDF
-from robot_dashboards.core import Dashboard, register
+from robot_dashboards.core import Dashboard, RerunView, register
 from robot_dashboards.dashboards._motion_state_helpers import (
     eye,
     forward_kinematics,
@@ -413,8 +413,7 @@ register(Dashboard(
         "servos": "optional: the drives' ServoState (one, or a tuple per bus): temperatures, voltage, faults",
         "diagnostics": "optional: DiagnosticRecords (one, or a tuple): a health lane per component",
     },
-    blueprint=_blueprint,
-    log=log,
+    viewers={"rerun": RerunView(blueprint=_blueprint, log=log)},
     sample=sample,
     code=(
         "import robot_dashboards as dash\n\n"

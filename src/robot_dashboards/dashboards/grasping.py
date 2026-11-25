@@ -37,7 +37,7 @@ from robot_msgs.manipulation import GraspPose
 from robot_msgs.sensor import PointCloud
 from robot_msgs.std import Header
 
-from robot_dashboards.core import Dashboard, register
+from robot_dashboards.core import Dashboard, RerunView, register
 from robot_dashboards.dashboards._manipulation_helpers import (
     HANDLE_ANGLE,
     HANDLE_ARC,
@@ -297,8 +297,7 @@ register(Dashboard(
         "grasps": "the planner's candidates, a tuple of GraspPose, each with a score",
         "chosen": "the GraspPose it picked (optional; else the best-scored is shown as the pick)",
     },
-    blueprint=blueprint,
-    log=log,
+    viewers={"rerun": RerunView(blueprint=blueprint, log=log)},
     sample=sample,
     code=(
         "import robot_dashboards as dash\n\n"

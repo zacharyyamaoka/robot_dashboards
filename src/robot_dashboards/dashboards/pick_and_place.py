@@ -40,7 +40,7 @@ from robot_msgs.trajectory import JointLimits, JointTrajectory, PoseTrajectory
 from robot_msgs.viz import rerun as stock
 
 from robot_dashboards.assets import UR5E_TRAJECTORY, UR5E_URDF
-from robot_dashboards.core import Dashboard, register
+from robot_dashboards.core import Dashboard, RerunView, register
 from robot_dashboards.dashboards._manipulation_helpers import DEG, Arm, Phase, phases, plan_cycle
 
 KEY = "pick_and_place"
@@ -394,8 +394,7 @@ register(Dashboard(
         "waypoints": "the cycle's waypoints in order: a WaypointAction, or a tuple of Waypoint",
         "grasp": "the planner's GraspPose the cycle picks with (optional)",
     },
-    blueprint=blueprint,
-    log=log,
+    viewers={"rerun": RerunView(blueprint=blueprint, log=log)},
     sample=sample,
     code=(
         "import robot_dashboards as dash\n\n"

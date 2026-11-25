@@ -1,4 +1,6 @@
-"""robot_dashboards: stock Rerun dashboards for common robotics use cases, on robot_msgs types.
+"""robot_dashboards: stock dashboards for common robotics use cases, on robot_msgs types.
+
+    your data ──adapter──▶ robot_msgs ──dashboard──▶ viewer (Rerun today; Foxglove, Viser… on the roadmap: docs/ROADMAP.md)
 
     import robot_dashboards as dash
 
@@ -11,10 +13,12 @@ Each dashboard is one module in robot_dashboards/dashboards/ (docs/CONTRACT.md);
 robot_msg_viz's stock views, so a dashboard and viz.show(msg) agree.
 """
 
+from robot_dashboards import adapters, viewers
 from robot_dashboards.core import (
     DASHBOARDS,
     Dashboard,
     DashboardStream,
+    RerunView,
     all_dashboards,
     get,
     register,
@@ -29,10 +33,13 @@ __all__ = [
     "DASHBOARDS",
     "Dashboard",
     "DashboardStream",
+    "RerunView",
+    "adapters",
     "all_dashboards",
     "get",
     "register",
     "save",
     "show",
     "stream",
+    "viewers",
 ]

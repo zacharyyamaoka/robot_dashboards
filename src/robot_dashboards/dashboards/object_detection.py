@@ -36,7 +36,7 @@ from robot_msgs.sensor import CameraInfo, Image
 from robot_msgs.std import Header
 from robot_msgs.vision import BoundingBox2D, Detection2D, Detection2DArray, ObjectHypothesis, ObjectHypothesisWithPose
 
-from robot_dashboards.core import Dashboard, register
+from robot_dashboards.core import Dashboard, RerunView, register
 from robot_dashboards.dashboards._perception_helpers import (
     Thing,
     bottle,
@@ -310,8 +310,7 @@ register(Dashboard(
     "class-coloured boxes, score per track, detections per class, and this frame's detections as numbers.",
     consumes=(Image, Detection2DArray),
     inputs={"image": "the camera frame", "detections": "what the detector found in it (boxes in its pixels)"},
-    blueprint=blueprint,
-    log=log,
+    viewers={"rerun": RerunView(blueprint=blueprint, log=log)},
     sample=sample,
     code=(
         "import robot_dashboards as dash\n\n"

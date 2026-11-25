@@ -34,7 +34,7 @@ from robot_msgs.sensor import CameraInfo, Image, PointCloud
 from robot_msgs.std import Header
 from robot_msgs.vision import BoundingBox3D, Detection3D, Detection3DArray, ObjectHypothesis, ObjectHypothesisWithPose
 
-from robot_dashboards.core import Dashboard, register
+from robot_dashboards.core import Dashboard, RerunView, register
 from robot_dashboards.dashboards._perception_helpers import (
     OPTICAL_FRAME,
     TABLE_CAMERA,
@@ -220,8 +220,7 @@ register(Dashboard(
         "image": "the camera's picture (optional)",
         "camera_pose": "where the camera is in the cloud's frame, tf parent -> optical frame (optional)",
     },
-    blueprint=blueprint,
-    log=log,
+    viewers={"rerun": RerunView(blueprint=blueprint, log=log)},
     sample=sample,
     code=(
         "import robot_dashboards as dash\n\n"

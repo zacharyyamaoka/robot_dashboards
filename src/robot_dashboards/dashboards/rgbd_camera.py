@@ -35,7 +35,7 @@ from robot_msgs.geometry import Transform, TransformStamped
 from robot_msgs.sensor import CameraInfo, Image, PointCloud
 from robot_msgs.std import Header
 
-from robot_dashboards.core import Dashboard, register
+from robot_dashboards.core import Dashboard, RerunView, register
 from robot_dashboards.dashboards._perception_helpers import (
     OPTICAL_FRAME,
     TABLE_CAMERA,
@@ -199,8 +199,7 @@ register(Dashboard(
         "camera": "their intrinsics",
         "camera_pose": "where the camera is, tf parent -> optical frame (optional; else level at the origin)",
     },
-    blueprint=blueprint,
-    log=log,
+    viewers={"rerun": RerunView(blueprint=blueprint, log=log)},
     sample=sample,
     code=(
         "import robot_dashboards as dash\n\n"

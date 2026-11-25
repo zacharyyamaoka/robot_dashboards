@@ -49,7 +49,7 @@ from robot_msgs.trajectory.joint_limit_violation import joint_limit_violations
 from robot_msgs.viz.rerun import TIMELINE, robot_blueprint
 
 from robot_dashboards.assets import ASSETS, UR5E_TRAJECTORY, UR5E_URDF
-from robot_dashboards.core import Dashboard, register
+from robot_dashboards.core import Dashboard, RerunView, register
 from robot_dashboards.dashboards._motion_state_helpers import forward_kinematics, inner, joint_label, tip_link
 
 KEY = "trajectory_generation"
@@ -515,8 +515,7 @@ register(Dashboard(
         "trajectory": "the JointTrajectory it made, with the JointLimits it had to keep",
         "tool": "optional: the tool's PoseTrajectory (default: the URDF's last link by forward kinematics)",
     },
-    blueprint=lambda: _sample_layout(),
-    log=log,
+    viewers={"rerun": RerunView(blueprint=lambda: _sample_layout(), log=log)},
     sample=sample,
     code=(
         "import robot_dashboards as dash\n\n"

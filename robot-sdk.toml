@@ -1,0 +1,13 @@
+# robot-sdk declaration (docs/graph-schema.md in github.com/zacharyyamaoka/robot_sdk), checked by its
+# `python -m tools.sdk_graph check`. Dashboards take robot_msgs messages as keyword inputs (typed Any);
+# each Dashboard's `consumes` lists the types it draws.
+schema = "robot-sdk-declaration/1"
+role = "viewer"
+layer = "viewers"
+one_line = "Stock Rerun dashboards for common robotics use cases, fed robot_msgs messages"
+summary = "A fixed Rerun layout per use case (object detection, 3D detection, RGB-D camera, grasping, pick and place, trajectory generation, robot state), each with sample data: `dash.show(key, **inputs)`, `dash.save(path, key)`, `with dash.stream(key) as live: live.log(t=t, **inputs)`. Types inside are drawn by robot_msg_viz's stock views; the use cases appear on robot_msg_viz's landing page through an entry point."
+use_when = "A standard robotics view of a whole task (what did the detector see, which grasp, how does the plan move). **Never build a one-off dashboard for a common use case; add or grow one here.**"
+
+[links]
+github = "https://github.com/zacharyyamaoka/robot_dashboards"
+pypi = "https://pypi.org/project/robot-dashboards/"

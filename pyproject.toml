@@ -28,7 +28,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-test = ["pytest>=8"]
+# WHY optional: only the ROS 2 adapter (adapters/ros2.py) needs rosbags; robot_msgs.ros does the decoding.
+ros = ["robot-msgs[ros]"]
+test = ["pytest>=8", "robot-msgs[ros]"]
 
 [project.entry-points."robot_msg_viz.gallery"]
 # WHY an entry point: robot_msg_viz's landing page lists these use cases without importing this package.

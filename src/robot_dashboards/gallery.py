@@ -7,10 +7,12 @@ from pathlib import Path
 from robot_msg_viz.gallery import GalleryEntry
 from robot_msg_viz.registry import key_of
 
+from robot_dashboards import adapters, viewers
 from robot_dashboards.core import all_dashboards, save
 
 
 def entries() -> list[GalleryEntry]:
+    adapters.get("robot_msgs")  # loads the built-in adapters
     out = []
     for dashboard in all_dashboards():
         code = dashboard.code or (
@@ -28,5 +30,8 @@ def entries() -> list[GalleryEntry]:
             kind="use_case", key=dashboard.key, title=dashboard.title, group=dashboard.category,
             summary=dashboard.summary, supported=True, code=code, write=write,
             consumes=tuple(key_of(t) for t in dashboard.consumes), source="robot_dashboards", timed=timed,
+            viewers=tuple((v.title, "supported" if v.status == "supported" and v.name in dashboard.viewers else "roadmap")
+                          for v in viewers.VIEWERS.values()),
+            adapters=tuple(sorted(adapters.ADAPTERS, key=lambda n: (n != "robot_msgs", n))),
         ))  # fmt: skip
     return out

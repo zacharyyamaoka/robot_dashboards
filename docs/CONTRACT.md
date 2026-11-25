@@ -1,17 +1,31 @@
 # robot_dashboards contract (v1, frozen 2026-11-24)
 
-A dashboard is a fixed Rerun layout for one robotics use case, fed robot_msgs messages. `tests/test_contract.py` and
+A dashboard is a fixed layout for one robotics use case, fed robot_msgs messages, drawn by a viewer (Rerun today). `tests/test_contract.py` and
 robot_msg_viz's `ruler.py` are the ruler: a lane adding a dashboard never edits them.
+
+## The three layers (Zach, 2026-11-24)
+
+```
+your data ──adapter──▶ robot_msgs ──dashboard──▶ viewer
+```
+
+- **Adapters** (`adapters/`): anything in, robot_msgs out. Built in: `robot_msgs` (identity) and `ros2` (ROS 2
+  messages and MCAP / rosbag2 files via robot_msgs.ros). Users convert to robot_msgs or `adapters.register(Adapter(...))`.
+- **Dashboards** (`dashboards/<key>.py`): the question, typed robot_msgs inputs, sample data, one renderer per viewer.
+- **Viewers** (`viewers/`): Rerun is supported; Foxglove, Viser and static HTML are on the roadmap (docs/ROADMAP.md).
 
 ## API (stable)
 
 ```python
 import robot_dashboards as dash
-dash.show(key, ticks=None, web=False, **inputs)    # one static moment (inputs), ticks, or the sample
-dash.save(path, key, ticks=None) -> Path            # blueprint inside
-dash.stream(key, spawn=True, web=False, save=None)  # live: live.log(t=..., **inputs)
-dash.get(key) / dash.all_dashboards()
+dash.show(key, ticks=None, viewer="rerun", web=False, adapter=None, **inputs)   # one moment (inputs), ticks, or the sample
+dash.save(path, key, ticks=None, viewer="rerun", adapter=None) -> Path          # layout inside
+dash.stream(key, viewer="rerun", adapter=None, spawn=True, web=False, save=None) # live: live.log(t=..., **inputs)
+dash.get(key) / dash.all_dashboards() / dash.adapters / dash.viewers
 ```
+
+Inputs that are not robot_msgs messages go through `adapters.to_robot_msgs` (the named adapter, else the first that
+accepts the value); a value no adapter accepts raises and names the two ways out.
 
 ## One module per dashboard: `src/robot_dashboards/dashboards/<key>.py`
 
@@ -21,9 +35,11 @@ register(Dashboard(
     summary="One line: what the dashboard answers.",
     consumes=(Image, Detection2DArray),          # robot_msgs types only
     inputs={"image": "the camera frame", "detections": "what the detector found in it"},
-    blueprint=lambda: rrb.Blueprint(...),        # the fixed layout: ≥2 views, each pointing at data the log writes
-    log=log,                                     # log(rec, **inputs): draw one tick; inputs may be partial
     sample=sample,                               # [(t or None, {input: message}), ...] deterministic, looks real
+    viewers={"rerun": RerunView(
+        blueprint=lambda: rrb.Blueprint(...),    # the fixed layout: ≥2 views, each pointing at data the log writes
+        log=log,                                 # log(rec, **inputs): draw one tick; inputs may be partial
+    )},
 ))
 ```
 
