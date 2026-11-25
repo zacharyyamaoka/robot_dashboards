@@ -10,6 +10,10 @@ from robot_msg_viz.registry import key_of
 from robot_dashboards import adapters, viewers
 from robot_dashboards.core import all_dashboards, save
 
+# WHY a link and not the module inlined: a dashboard module is a few hundred lines; the landing page shows how to call
+# it (``code``) and links the whole thing (private repo: the page is behind a sign-in, and so is GitHub)
+SOURCE = "https://github.com/zacharyyamaoka/robot_dashboards/blob/main/src/robot_dashboards/dashboards"
+
 
 def entries() -> list[GalleryEntry]:
     adapters.get("robot_msgs")  # loads the built-in adapters
@@ -33,5 +37,6 @@ def entries() -> list[GalleryEntry]:
             viewers=tuple((v.title, "supported" if v.status == "supported" and v.name in dashboard.viewers else "roadmap")
                           for v in viewers.VIEWERS.values()),
             adapters=tuple(sorted(adapters.ADAPTERS, key=lambda n: (n != "robot_msgs", n))),
+            links=(("Its code on GitHub", f"{SOURCE}/{dashboard.key}.py"),),
         ))  # fmt: skip
     return out

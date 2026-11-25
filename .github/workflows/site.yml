@@ -1,0 +1,197 @@
+# robot_dashboards' landing page: test and build on every push and PR, and on a push to main deploy it where the
+# README's live-page line ("[▶ Live landing page](<url>)") says it lives. The build is the same for every host.
+#
+# WHERE IT GOES (Zach, 2026-11-25: "for public github repos use github io, but for private do cloud flare. everythign
+# else is the same, its just who is hosting it changes"):
+#   https://<owner>.github.io/<repo>/   GitHub Pages, and only while the repo is PUBLIC (a private repo's page there
+#                                       would be public).
+#   https://<any other host>/           Cloudflare: a static-assets Worker on that host (a Custom Domain), only behind a
+#                                       Cloudflare Access sign-in. The deploy refuses a host no Access app covers and
+#                                       takes the Worker down again if the page answers without a sign-in.
+# Without the CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID secrets it builds and tests, deploys nothing, and stays
+# green. They turn on with no code change: after blackbox_agent's `tools/cloudflare_pages.py setup`, run
+# `python3 tools/set_cloudflare_secrets.py` here once.
+# Matches blackbox_agent's shared site.yml (package/.github/workflows/site.yml, v0.1.11+): the same host switch, the
+# same Access check and sign-in check. This repo is not a black-box box (its page is robot_msg_viz.site's, not
+# `blackbox build`), so it has this small workflow of its own.
+#
+# WHY the self-hosted viewer (--viewer): behind Access the hosted app.rerun.io cannot fetch a recording (cross-origin,
+# no Access cookie); the viewer comes from the pinned rerun-sdk, its wasm in parts under Workers' 25 MiB per file.
+# WHY --no-sources and the pins: pyproject's [tool.uv.sources] points at /home/bam checkouts. robot_msg_viz (public)
+# and robot_msgs come from their GitHub commits (robot-msgs 0.3.1 is not on PyPI); pinned so their pushes cannot
+# change this run.
+name: site
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  site:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # WHY pages: read: configure-pages reads the repo's Pages settings (only on the GitHub Pages branch)
+    permissions:
+      contents: read
+      pages: read
+    # WHY a queue per ref: two quick pushes must reach Cloudflare in order; the older deploy never lands last
+    concurrency:
+      group: site-${{ github.ref }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - id: where
+        name: Where the page goes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEPLOY: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
+          HAS_CLOUDFLARE: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
+        run: |
+          private=$(gh api "repos/${GITHUB_REPOSITORY}" --jq .private)
+          url=$(grep -m1 -oE 'Live landing page\]\(https://[^)[:space:]]+\)' README.md 2>/dev/null \
+                | sed -E 's/^.*\((https:[^)]*)\)$/\1/' || true)
+          host=$(printf '%s' "$url" | sed -E 's#^https://([^/]+).*$#\1#')
+          github=false; cloudflare=false
+          if [ "$DEPLOY" != true ]; then
+            echo "::notice::Built the site; a pull request or a branch deploys nothing."
+          elif [ -z "$url" ]; then
+            echo "::notice::Built the site; deployed nothing: README.md has no '[▶ Live landing page](<url>)' line."
+          elif [[ "$host" == *.github.io ]]; then
+            if [ "$private" = false ]; then
+              github=true
+            else
+              echo "::error::README.md puts this PRIVATE repo's page on $host, a public host. Point it at a Cloudflare host behind Access, or make the repo public first."; exit 1
+            fi
+          elif ! [[ "$host" =~ ^[a-z0-9-]+(\.[a-z0-9-]+)+$ ]]; then
+            echo "::error::README.md's live-page host '$host' is not a plain lowercase hostname"; exit 1
+          elif [ "$HAS_CLOUDFLARE" = true ]; then
+            cloudflare=true
+          else
+            echo "::notice::Built the site; deployed nothing: the README puts the page on $host (Cloudflare), but the repo has no CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID secrets yet (tools/set_cloudflare_secrets.py)."
+          fi
+          { echo "github=$github"; echo "cloudflare=$cloudflare"; echo "host=$host"; } >> "$GITHUB_OUTPUT"
+      - uses: astral-sh/setup-uv@v6
+      - run: uv venv --python 3.12
+      - run: >-
+          uv pip install --no-sources -e ".[test]"
+          "robot-msg-viz @ git+https://github.com/zacharyyamaoka/robot_msg_viz@4469a06b0da0b851d75d2278efc496b4af07f94a"
+          "robot-msgs[rerun,ros] @ git+https://github.com/zacharyyamaoka/robot_msgs@e5f375dd98e3b3cd3066f284c91db9ef63ea48a7"
+      - name: test
+        run: .venv/bin/python -m pytest -q
+        env:
+          MPLBACKEND: Agg
+      - name: build
+        run: >-
+          .venv/bin/python -m robot_msg_viz.site build _site --use-cases-only --title robot_dashboards
+          --tagline "stock dashboards for common robotics use cases" --intro website/intro.html
+          --github https://github.com/zacharyyamaoka/robot_dashboards
+          --shots website/media/shots --hero website/media/hero.mp4 --viewer --private
+        env:
+          MPLBACKEND: Agg
+      - name: every file fits a static host
+        run: |
+          big=$(find _site -type f -size +25M)
+          if [ -n "$big" ]; then echo "::error::over Cloudflare Workers' 25 MiB per file: $big"; exit 1; fi
+          du -sh _site; ls _site
+      - uses: actions/configure-pages@v5
+        if: steps.where.outputs.github == 'true'
+      - uses: actions/upload-pages-artifact@v3
+        if: steps.where.outputs.github == 'true'
+        with:
+          path: _site
+      - name: Cloudflare Access covers the host (else nothing is published)
+        if: steps.where.outputs.cloudflare == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          HOST: ${{ steps.where.outputs.host }}
+        run: |
+          python3 - <<'PY'
+          import json, os, sys, urllib.request
+          host, account = os.environ["HOST"], os.environ["CLOUDFLARE_ACCOUNT_ID"]
+          req = urllib.request.Request(f"https://api.cloudflare.com/client/v4/accounts/{account}/access/apps?per_page=1000",
+                                       headers={"Authorization": "Bearer " + os.environ["CLOUDFLARE_API_TOKEN"]})
+          try:
+              apps = json.load(urllib.request.urlopen(req, timeout=30)).get("result") or []
+          except Exception as e:  # noqa: BLE001 - any failure here means "not proven covered"
+              sys.exit(f"::error::Could not list Cloudflare Access apps ({e}): the token needs Access: Apps and Policies.")
+          def covers(pattern: str) -> bool:
+              p = pattern.strip().lower().rstrip("/")
+              if not p or "/" in p:  # a path-scoped app protects only that path, not the whole page
+                  return False
+              # WHY one level only: Access's *.zone covers a.zone, never a.b.zone or the zone itself
+              return p == host or (p.startswith("*.") and host.endswith(p[1:]) and host.count(".") == p.count("."))
+          names = []
+          for app in apps:
+              if app.get("type") != "self_hosted":
+                  continue
+              names.append(app.get("domain") or "")
+              names += [d.get("uri") or "" for d in app.get("destinations") or [] if d.get("type") == "public"]
+              names += app.get("self_hosted_domains") or []
+          if not any(covers(n) for n in names):
+              sys.exit(f"::error::No Cloudflare Access app covers {host}: refusing to publish this page without a sign-in "
+                       f"in front of it. Add one (Zero Trust > Access > Applications, self-hosted, *.<zone>).")
+          print(f"Cloudflare Access covers {host}")
+          PY
+      - name: Deploy to Cloudflare
+        if: steps.where.outputs.cloudflare == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          HOST: ${{ steps.where.outputs.host }}
+        # WHY workers_dev and preview_urls off: those hostnames sit outside the Access app and would bypass the sign-in
+        # WHY "site-": a repo's page, not a black-box box's ("box-<label>" is blackbox_agent's)
+        run: |
+          name="site-${HOST%%.*}"; name="${name:0:63}"
+          cat > "$RUNNER_TEMP/wrangler.json" <<EOF
+          {"name": "$name", "compatibility_date": "2026-11-01",
+           "assets": {"directory": "$PWD/_site", "html_handling": "auto-trailing-slash"},
+           "workers_dev": false, "preview_urls": false,
+           "routes": [{"pattern": "$HOST", "custom_domain": true}]}
+          EOF
+          npx --yes wrangler@4.151.0 deploy --config "$RUNNER_TEMP/wrangler.json"
+          echo "WORKER=$name" >> "$GITHUB_ENV"
+      - name: The page asks for a sign-in (else it comes down)
+        if: steps.where.outputs.cloudflare == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          HOST: ${{ steps.where.outputs.host }}
+        # WHY up to 3 min: a new Custom Domain waits for its certificate before it answers at all
+        run: |
+          out=""
+          for _ in $(seq 1 36); do
+            out=$(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' "https://$HOST/" || true)
+            code=${out%% *}; where=${out#* }
+            if [[ "$code" =~ ^30[1278]$ && "$where" == *cloudflareaccess.com* ]]; then
+              echo "https://$HOST/ asks for a Cloudflare Access sign-in"; exit 0
+            fi
+            if [ "$code" = 200 ]; then
+              echo "::error::https://$HOST/ answered 200 without a sign-in: deleting the Worker $WORKER"
+              curl -s -X DELETE -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+                "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/scripts/$WORKER?force=true"
+              exit 1
+            fi
+            sleep 5
+          done
+          echo "::error::https://$HOST/ never asked for a sign-in within 3 min (last answer: $out)"; exit 1
+    outputs:
+      github: ${{ steps.where.outputs.github }}
+  deploy:
+    needs: site
+    if: needs.site.outputs.github == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,41 @@
+{
+ "_why": "The landing page's hero, recorded in the real Rerun web viewer from the dashboards' own sample recordings by robot_msg_viz's tools/hero_video.py: an arm planning and running a pick, the grasps scored, a detector over time. Coordinates are in the 1280x800 viewer. No camera drags: the headless software renderer crashed or crawled orbiting a point cloud. A heavy recording (the arm's meshes) streams in for several seconds after the viewer reports it, hence the longer settles.",
+ "segments": [
+  {
+   "key": "trajectory_generation",
+   "seconds": 6.5,
+   "play": [
+    0.0,
+    3.2
+   ],
+   "settle_ms": 9000
+  },
+  {
+   "key": "pick_and_place",
+   "seconds": 4.5,
+   "play": [
+    0.0,
+    7.88
+   ],
+   "speed": 1.8,
+   "settle_ms": 6000
+  },
+  {
+   "key": "grasping",
+   "seconds": 3.0
+  },
+  {
+   "key": "object_detection",
+   "seconds": 3.0,
+   "play": [
+    0.0,
+    3.0
+   ]
+  }
+ ],
+ "poster": [
+  0,
+  3.0
+ ],
+ "crf": 30
+}
