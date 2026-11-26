@@ -18,8 +18,7 @@
 # WHY the self-hosted viewer (--viewer): behind Access the hosted app.rerun.io cannot fetch a recording (cross-origin,
 # no Access cookie); the viewer comes from the pinned rerun-sdk, its wasm in parts under Workers' 25 MiB per file.
 # WHY --no-sources and the pins: pyproject's [tool.uv.sources] points at /home/bam checkouts. robot_msg_viz (public)
-# and robot_msgs come from their GitHub commits (robot-msgs 0.3.1 is not on PyPI); pinned so their pushes cannot
-# change this run.
+# comes from its GitHub commit, pinned so its pushes cannot change this run; robot-msgs>=0.3.2 comes from PyPI.
 name: site
 on:
   push:
@@ -77,7 +76,7 @@ jobs:
       - run: >-
           uv pip install --no-sources -e ".[test]"
           "robot-msg-viz @ git+https://github.com/zacharyyamaoka/robot_msg_viz@4469a06b0da0b851d75d2278efc496b4af07f94a"
-          "robot-msgs[rerun,ros] @ git+https://github.com/zacharyyamaoka/robot_msgs@e5f375dd98e3b3cd3066f284c91db9ef63ea48a7"
+          "robot-msgs[rerun,ros]>=0.3.2"
       - name: test
         run: .venv/bin/python -m pytest -q
         env:
