@@ -1,7 +1,7 @@
-"""The landing page: hosted only behind a sign-in, every dashboard with its still, built by robot_msg_viz's builder.
+"""The landing page: every dashboard with its still, built by robot_msg_viz's builder.
 
-WHY (Zach, 2026-11-25): "for public github repos use github io, but for private do cloud flare". This repo is private,
-so its README's live-page line (the deploy's one switch) must name the Cloudflare host behind Access, never github.io.
+WHY (Zach, 2026-11-25): "for public github repos use github io, but for private do cloud flare". This repo went public
+the same day, so its README's live-page line (the deploy's one switch) names the github.io page.
 """
 
 from __future__ import annotations
@@ -19,13 +19,11 @@ MEDIA = REPO / "website" / "media"
 LIVE = re.compile(r"\[▶ Live landing page\]\((https://[^)\s]+)\)")
 
 
-def test_the_live_page_is_on_cloudflare_behind_access_never_a_public_host():
+def test_the_live_page_is_on_github_pages_because_the_repo_is_public():
     lines = LIVE.findall((REPO / "README.md").read_text())
-    assert lines == ["https://robot-dashboards.zacharyyamaoka.com/"], lines
+    assert lines == ["https://zacharyyamaoka.github.io/robot_dashboards/"], lines
     workflow = (REPO / ".github" / "workflows" / "site.yml").read_text()
-    assert "No Cloudflare Access app covers" in workflow, "the deploy refuses a host no Access app covers"
-    assert '"workers_dev": false, "preview_urls": false' in workflow, "no hostname outside Access"
-    assert "PRIVATE repo's page on $host, a public host" in workflow, "a github.io line is refused while private"
+    assert "actions/deploy-pages" in workflow, "the deploy publishes to GitHub Pages"
 
 
 def test_every_dashboard_has_its_committed_still_and_the_hero_is_there():
