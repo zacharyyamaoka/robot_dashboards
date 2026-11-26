@@ -7,7 +7,7 @@ messages.** Rerun today; other viewers are on the [roadmap](docs/ROADMAP.md).
 
 ```
 your data ──adapter──▶ robot_msgs ──dashboard──▶ viewer
-             robot_msgs ✓              8 use cases     Rerun ✓
+             robot_msgs ✓             12 use cases     Rerun ✓
              ROS 2 / MCAP ✓                            Foxglove, Viser, static HTML (roadmap)
              yours: register()
 ```
@@ -36,6 +36,10 @@ dash.show("robot_state", ticks=run)
 | `trajectory_generation` | Did the generator turn these waypoints into a smooth trajectory inside the limits? | the stock URDF trajectory viewer, numbered waypoints, a verdict per limit, peak % of each limit |
 | `trajectory_comparison` | Did the run follow its target, where and by how much did it deviate? | traj_compare's Target vs run viewer: the run on the stock URDF arm with its target pale under every plot, the deviation ×N as a magenta skeleton and an arrow labelled in mm, the target's tool path dashed; an Error tab with tool error (mm), per-joint error (°), target vs run at the playhead |
 | `robot_state` | What is the robot doing right now, and is anything unhealthy? | URDF arm driven by JointState, joint angles in degrees, efforts, wrist F/T, IMU, drive temperatures, a WARN/ERROR log |
+| `sim2real_pendulum` | Which model of the 1-DOF pendulum (sim with backlash, rigid sim, the analytical ODE) tracks the real one best, and for how long? | the models ranked by a short-horizon score, the error at 0.25 / 0.5 / 1 / 2 s, time inside a tolerance that grows with time (`tol(t) = 0.5° + 1°/s · t`, on screen), the link angle of every source overlaid; then robot_msg_viz's across-runs table and, per run (open-loop releases, a torque pulse, a closed-loop step), every stream compared and overlaid |
+| `sim2real_arm` | Does the sim predict the real 6-DOF arm better than the plan does, and on which streams is it wrong? | the same answer on the servo encoders (worst joint, °), the real UR5e on its URDF, each model's worst run per stream; servo state, servo command, wrist IMU and wrist F/T compared across a speed sweep |
+| `sim2real_five_bar` | Does the sim put the five-bar's tool where the real one goes, and does it stop the same way? | the answer on the tool position from a camera (mm), the real linkage moving from its encoders, both motors and the tool compared per run (a parallel arm: BAM's pilot cell) |
+| `sim2real_diff_drive` | Driven open loop, how far does each model's mobile base drift from the real one, and how soon? | the answer on the base position from motion capture (mm), each source's path from above, wheels, base IMU and pose compared per run of a speed sweep |
 
 Each dashboard draws its types through [robot_msg_viz](https://github.com/zacharyyamaoka/robot_msg_viz)'s stock views,
 so a type looks the same in a dashboard and in `viz.show(msg)`. The use cases appear on robot_msg_viz's landing page,
@@ -65,7 +69,7 @@ One module in `src/robot_dashboards/dashboards/<key>.py`; see [docs/CONTRACT.md]
 
 ## The landing page
 
-The eight dashboards with a still, a hero clip, the question each answers, its code, and Open in browser (Rerun's web
+The twelve dashboards with a still, a hero clip, the question each answers, its code, and Open in browser (Rerun's web
 viewer, served from the page itself, so recordings open without a third-party host). Built with
 robot_msg_viz's site builder in its plugin mode; the stills and the clip are committed in `website/media`.
 

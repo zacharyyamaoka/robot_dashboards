@@ -24,6 +24,9 @@ dependencies = [
     # WHY robot-msg-viz: each dashboard logs its messages through the stock per-type views and streams
     # through its Stream, so a dashboard and viz.show(msg) draw a type the same way.
     "robot-msg-viz>=0.1.0",
+    # WHY a floor of its own: the sim2real_* dashboards take robot_msgs 0.4.0's Dataset / Run / Recording and its
+    # stream types (ServoStateTrajectory, ImuTrajectory, ...), whatever robot_msg_viz's own floor says.
+    "robot-msgs>=0.4.0",
     "rerun-sdk==0.40.0",
     # WHY traj-compare[rerun]: the trajectory_comparison dashboard IS traj_compare's "Target vs run" Rerun viewer
     # (rerun_target_run, V2), called rather than copied, so the dashboard and traj_compare's Open in Rerun never drift.

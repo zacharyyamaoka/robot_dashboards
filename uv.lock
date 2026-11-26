@@ -1161,6 +1161,7 @@ dependencies = [
     { name = "numpy", version = "2.5.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "rerun-sdk" },
     { name = "robot-msg-viz" },
+    { name = "robot-msgs" },
     { name = "traj-compare", extra = ["rerun"] },
 ]
 
@@ -1179,6 +1180,7 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'test'", specifier = ">=8" },
     { name = "rerun-sdk", specifier = "==0.40.0" },
     { name = "robot-msg-viz", editable = "/home/bam/robot_msg_viz" },
+    { name = "robot-msgs", editable = "/home/bam/robot_msgs" },
     { name = "robot-msgs", extras = ["ros"], marker = "extra == 'ros'", editable = "/home/bam/robot_msgs" },
     { name = "robot-msgs", extras = ["ros"], marker = "extra == 'test'", editable = "/home/bam/robot_msgs" },
     { name = "traj-compare", extras = ["rerun"], editable = "/home/bam/traj_compare" },
@@ -1210,7 +1212,7 @@ site = [{ name = "robot-dashboards", editable = "/home/bam/robot_dashboards" }]
 
 [[package]]
 name = "robot-msgs"
-version = "0.3.2"
+version = "0.4.0"
 source = { editable = "/home/bam/robot_msgs" }
 dependencies = [
     { name = "dataclass-values" },

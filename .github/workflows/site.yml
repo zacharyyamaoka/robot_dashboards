@@ -18,8 +18,10 @@
 # WHY the self-hosted viewer (--viewer): behind Access the hosted app.rerun.io cannot fetch a recording (cross-origin,
 # no Access cookie); the viewer comes from the pinned rerun-sdk, its wasm in parts under Workers' 25 MiB per file.
 # WHY --no-sources and the pins: pyproject's [tool.uv.sources] points at /home/bam checkouts. robot_msg_viz (public)
-# and traj_compare (public) come from their GitHub commits, pinned so their pushes cannot change this run;
-# robot-msgs>=0.3.2 comes from PyPI.
+# and traj_compare (public) come from their GitHub commits, pinned so their pushes cannot change this run.
+# WHY robot-msgs from its public commit 7f08d8a until robot-msgs 0.4.0 is on PyPI: the sim2real_* dashboards (and
+# robot_msg_viz 3461069's stream and dataset views) need its 0.4.0 Dataset / Run / Recording and stream types. Back to
+# "robot-msgs[rerun,ros]>=0.4.0" from PyPI once that release is out.
 name: site
 on:
   push:
@@ -76,9 +78,9 @@ jobs:
       - run: uv venv --python 3.12
       - run: >-
           uv pip install --no-sources -e ".[test]"
-          "robot-msg-viz @ git+https://github.com/zacharyyamaoka/robot_msg_viz@4469a06b0da0b851d75d2278efc496b4af07f94a"
+          "robot-msg-viz @ git+https://github.com/zacharyyamaoka/robot_msg_viz@346106919f0dcee08100b3381032d7c28f258575"
           "traj-compare[rerun] @ git+https://github.com/zacharyyamaoka/traj_compare@a85557c0ac19bb1f8d419e1307db331485522eee"
-          "robot-msgs[rerun,ros]>=0.3.2"
+          "robot-msgs[rerun,ros] @ git+https://github.com/zacharyyamaoka/robot_msgs@7f08d8a1bdb8ded54ccc24a40ac75cd12f1a91ce"
       - name: test
         run: .venv/bin/python -m pytest -q
         env:
