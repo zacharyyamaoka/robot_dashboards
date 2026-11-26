@@ -9,5 +9,6 @@ summary = "A fixed Rerun layout per use case (object detection, 3D detection, RG
 use_when = "A standard robotics view of a whole task (what did the detector see, which grasp, how does the plan move). **Never build a one-off dashboard for a common use case; add or grow one here.**"
 
 [links]
+site = "https://zacharyyamaoka.github.io/robot_dashboards/"
 github = "https://github.com/zacharyyamaoka/robot_dashboards"
 pypi = "https://pypi.org/project/robot-dashboards/"

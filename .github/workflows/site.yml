@@ -87,7 +87,7 @@ jobs:
           .venv/bin/python -m robot_msg_viz.site build _site --use-cases-only --title robot_dashboards
           --tagline "stock dashboards for common robotics use cases" --intro website/intro.html
           --github https://github.com/zacharyyamaoka/robot_dashboards
-          --shots website/media/shots --hero website/media/hero.mp4 --viewer --private
+          --shots website/media/shots --hero website/media/hero.mp4 --viewer
         env:
           MPLBACKEND: Agg
       - name: every file fits a static host

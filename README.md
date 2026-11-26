@@ -1,6 +1,6 @@
 # robot_dashboards
 
-**[▶ Live landing page](https://robot-dashboards.zacharyyamaoka.com/)**: private, it asks for a sign-in (Cloudflare Access) · deployed from `main` by `.github/workflows/site.yml`
+**[▶ Live landing page](https://zacharyyamaoka.github.io/robot_dashboards/)** · deployed from `main` by `.github/workflows/site.yml`
 
 **Stock dashboards for common robotics use cases, fed [robot_msgs](https://github.com/zacharyyamaoka/robot_msgs)
 messages.** Rerun today; other viewers are on the [roadmap](docs/ROADMAP.md).
@@ -65,20 +65,16 @@ One module in `src/robot_dashboards/dashboards/<key>.py`; see [docs/CONTRACT.md]
 ## The landing page
 
 The seven dashboards with a still, a hero clip, the question each answers, its code, and Open in browser (Rerun's web
-viewer, served from the page itself, because behind a sign-in the hosted one cannot fetch the recordings). Built with
+viewer, served from the page itself, so recordings open without a third-party host). Built with
 robot_msg_viz's site builder in its plugin mode; the stills and the clip are committed in `website/media`.
 
 ```bash
-env -u VIRTUAL_ENV uv run --directory /home/bam/robot_dashboards python -m robot_msg_viz.site build /home/bam/robot_dashboards/website/dist --use-cases-only --title robot_dashboards --tagline "stock dashboards for common robotics use cases" --intro /home/bam/robot_dashboards/website/intro.html --github https://github.com/zacharyyamaoka/robot_dashboards --shots /home/bam/robot_dashboards/website/media/shots --hero /home/bam/robot_dashboards/website/media/hero.mp4 --viewer --private
+env -u VIRTUAL_ENV uv run --directory /home/bam/robot_dashboards python -m robot_msg_viz.site build /home/bam/robot_dashboards/website/dist --use-cases-only --title robot_dashboards --tagline "stock dashboards for common robotics use cases" --intro /home/bam/robot_dashboards/website/intro.html --github https://github.com/zacharyyamaoka/robot_dashboards --shots /home/bam/robot_dashboards/website/media/shots --hero /home/bam/robot_dashboards/website/media/hero.mp4 --viewer
 python3 -m http.server 4494 --bind 127.0.0.1 --directory /home/bam/robot_dashboards/website/dist
 ```
 
-**Where it is hosted:** the README's live-page line is the switch. This repo is private, so the page is on Cloudflare
-behind an Access sign-in; the workflow refuses a github.io line while the repo is private, and refuses a Cloudflare host
-that no Access app covers. Until the repo has the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets it builds
-and deploys nothing; after blackbox_agent's `tools/cloudflare_pages.py setup`, `python3 tools/set_cloudflare_secrets.py`
-sets them. If the repo goes public, point the line at `https://zacharyyamaoka.github.io/robot_dashboards/` (and drop
-`--private`).
+**Where it is hosted:** GitHub Pages (the repo is public). CI tests, builds and deploys from `main`; the README's
+live-page line is the switch the workflow reads.
 
 ## Develop
 
