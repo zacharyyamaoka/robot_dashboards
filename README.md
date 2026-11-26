@@ -7,7 +7,7 @@ messages.** Rerun today; other viewers are on the [roadmap](docs/ROADMAP.md).
 
 ```
 your data ──adapter──▶ robot_msgs ──dashboard──▶ viewer
-             robot_msgs ✓              7 use cases     Rerun ✓
+             robot_msgs ✓              8 use cases     Rerun ✓
              ROS 2 / MCAP ✓                            Foxglove, Viser, static HTML (roadmap)
              yours: register()
 ```
@@ -34,6 +34,7 @@ dash.show("robot_state", ticks=run)
 | `grasping` | Which grasps did the planner propose, which is best, and is it feasible? | candidates coloured by score, the chosen grasp, collision points, sorted scores, a pass/fail verdict |
 | `pick_and_place` | Where is the arm in the cycle, and did each phase go as planned? | the UR5e on robot_msgs' stock URDF viewer, numbered waypoints, phase / gripper / on-plan lanes, phase-vs-plan table |
 | `trajectory_generation` | Did the generator turn these waypoints into a smooth trajectory inside the limits? | the stock URDF trajectory viewer, numbered waypoints, a verdict per limit, peak % of each limit |
+| `trajectory_comparison` | Did the run follow its target, where and by how much did it deviate? | traj_compare's Target vs run viewer: the run on the stock URDF arm with its target pale under every plot, the deviation ×N as a magenta skeleton and an arrow labelled in mm, the target's tool path dashed; an Error tab with tool error (mm), per-joint error (°), target vs run at the playhead |
 | `robot_state` | What is the robot doing right now, and is anything unhealthy? | URDF arm driven by JointState, joint angles in degrees, efforts, wrist F/T, IMU, drive temperatures, a WARN/ERROR log |
 
 Each dashboard draws its types through [robot_msg_viz](https://github.com/zacharyyamaoka/robot_msg_viz)'s stock views,
@@ -64,7 +65,7 @@ One module in `src/robot_dashboards/dashboards/<key>.py`; see [docs/CONTRACT.md]
 
 ## The landing page
 
-The seven dashboards with a still, a hero clip, the question each answers, its code, and Open in browser (Rerun's web
+The eight dashboards with a still, a hero clip, the question each answers, its code, and Open in browser (Rerun's web
 viewer, served from the page itself, so recordings open without a third-party host). Built with
 robot_msg_viz's site builder in its plugin mode; the stills and the clip are committed in `website/media`.
 

@@ -25,6 +25,9 @@ dependencies = [
     # through its Stream, so a dashboard and viz.show(msg) draw a type the same way.
     "robot-msg-viz>=0.1.0",
     "rerun-sdk==0.40.0",
+    # WHY traj-compare[rerun]: the trajectory_comparison dashboard IS traj_compare's "Target vs run" Rerun viewer
+    # (rerun_target_run, V2), called rather than copied, so the dashboard and traj_compare's Open in Rerun never drift.
+    "traj-compare[rerun]>=0.1.0",
 ]
 
 [project.optional-dependencies]
@@ -46,6 +49,7 @@ packages = ["src/robot_dashboards"]
 [tool.uv.sources]
 robot-msg-viz = { path = "/home/bam/robot_msg_viz", editable = true }
 robot-msgs = { path = "/home/bam/robot_msgs", editable = true }
+traj-compare = { path = "/home/bam/traj_compare", editable = true }
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
