@@ -1,0 +1,714 @@
+{
+ "schemaVersion": 3,
+ "title": "Five ways to view a robot in Rerun",
+ "kicker": "Babble round · 2026-11-28 · robot_dashboards",
+ "brief": "One read-only Rerun viewer per robot description: 3D on the left; every actuator's command vs state, every sensor's measurement and every part's configuration; composed from the description tree so the pendulum, the UR5e and the dual-arm cell come out of the same function.",
+ "count": 5,
+ "boundary": "Real Rerun 0.40 recordings and blueprints, opened in the stock web viewer. Simulated: commands are a real UR5e trajectory, states are it delayed 90 ms with sag and noise (the pendulum runs a PD loop); camera frames are a pinhole render of the same geometry; temperatures, the 2.6 s elbow fault and all configs are sample numbers. Not registered as dashboards.",
+ "invariants": [
+  "Same recording for all five (same entities, samples, colours); only the blueprint differs",
+  "Same three robots: 1-DOF pendulum + side camera, UR5e + wrist camera, dual-arm cell (two UR5e subtrees, each with its wrist camera) + overhead camera",
+  "Stills at 1440×900, dark theme, playhead at t = 5.0 s",
+  "Read-only: no command path, no bus"
+ ],
+ "axes": [
+  {
+   "name": "Primary grouping",
+   "values": [
+    "part kind (V1)",
+    "description tree, tabbed (V2)",
+    "none: one page (V3)",
+    "signal (V4)",
+    "description tree, all at once (V5)"
+   ]
+  },
+  {
+   "name": "What's visible at once",
+   "values": [
+    "one kind, one subtree (V1)",
+    "one top-level part (V2)",
+    "everything, as numbers (V3)",
+    "one signal, every subtree (V4)",
+    "everything, as views (V5)"
+   ]
+  },
+  {
+   "name": "Where config lives",
+   "values": [
+    "its own tab (V1, V4)",
+    "beside each part (V2, V5)",
+    "under the live table (V3)"
+   ]
+  }
+ ],
+ "requirements": [
+  {
+   "id": "fr1",
+   "name": "Command vs state for every actuator readable at a glance",
+   "weight": 25,
+   "why": "The first question at the rig is 'is it doing what I told it?', for every joint.",
+   "passCondition": "For any actuator, command and measured state (and their gap) read without hovering.",
+   "anchors": {
+    "1": "cmd and state are not shown together",
+    "3": "shown together but small or overlaid",
+    "5": "each actuator's cmd vs state is large and immediately distinct"
+   }
+  },
+  {
+   "id": "fr2",
+   "name": "Composes with the description tree",
+   "weight": 25,
+   "why": "Zach: 'as you compose the robotdescription so should their visualization compose'.",
+   "passCondition": "Adding a part to the description adds its view with no dashboard edit.",
+   "anchors": {
+    "1": "a hand-written layout per robot",
+    "3": "generated, but new kinds or groups need edits",
+    "5": "the layout is a function of the tree; nothing per robot"
+   }
+  },
+  {
+   "id": "fr3",
+   "name": "Scales from 1-DOF to a dual-arm cell without a huge list",
+   "weight": 20,
+   "why": "Zach: 'break down by right arm etc so you don't have a crazy huge list'.",
+   "passCondition": "The dual-arm cell stays as readable as the pendulum.",
+   "anchors": {
+    "1": "one long list or crushed views at dual-arm",
+    "3": "works at dual-arm, strains beyond",
+    "5": "grows by subtree with no loss of legibility"
+   }
+  },
+  {
+   "id": "fr4",
+   "name": "Sensor measurements (cameras) visible",
+   "weight": 15,
+   "why": "'all the sensors we want to see the measurements'.",
+   "passCondition": "Every camera's image is visible and legible.",
+   "anchors": {
+    "1": "missing or illegible",
+    "3": "legible but apart from the actuators",
+    "5": "legible and in context with what it watches"
+   }
+  },
+  {
+   "id": "fr5",
+   "name": "Configuration visible, read-only",
+   "weight": 15,
+   "why": "'you can see the configurations etc on the actuators and sensors'.",
+   "passCondition": "Every servo's kp/kd/current/limits and each camera's resolution/exposure/fps are readable.",
+   "anchors": {
+    "1": "not shown",
+    "3": "shown but truncated or out of sight",
+    "5": "complete and readable"
+   }
+  }
+ ],
+ "variants": [
+  {
+   "id": "v1",
+   "name": "Tabs by part type",
+   "thesis": "Zach's sketch: 3D left, tabs Servos / Cameras / Config; Servos splits into one sub-tab per subtree, one plot per joint, command dots over the state line.",
+   "accent": "#4c8dff",
+   "bestWhen": "You want one joint's tracking at a time, big, and to know where every kind of thing lives.",
+   "losesWhen": "You need cameras and servos together, or a new kind of part (IMU, gripper) arrives: its tab is an edit.",
+   "decisions": [
+    {
+     "label": "Primary grouping",
+     "value": "by part kind: Servos, Cameras, Config"
+    },
+    {
+     "label": "Big lists",
+     "value": "a sub-tab per subtree (left_arm | right_arm), 6 joints + a temperature plot each"
+    },
+    {
+     "label": "Config",
+     "value": "one table per top-level group in its own tab"
+    }
+   ],
+   "keepParts": [
+    "per-joint cmd-vs-state plots",
+    "sub-tab per subtree",
+    "Config tab tables"
+   ],
+   "proof": [
+    "Built by build.py into a real .rrd and shot in the stock Rerun 0.40 web viewer, headless (0 viewer errors).",
+    "Same recording as the other four; only the blueprint differs."
+   ],
+   "previewLabel": "real Rerun stills",
+   "preview": "<style>\n.rv{font:13px/1.4 system-ui,sans-serif;color:#e8e8ea;background:#111;border-radius:8px;overflow:hidden}\n.rv img{display:block;width:100%;height:auto}\n.rv .st{display:none}.rv .chips{display:flex;gap:6px;padding:8px;flex-wrap:wrap;background:#1b1b1f}\n.rv button{font:inherit;padding:4px 10px;border-radius:14px;border:1px solid #555;background:#26262b;color:#eee;cursor:pointer}\n.prototype:not([data-story-state]) .st.s1,.prototype[data-story-state=s1] .st.s1,.prototype[data-story-state=s2] .st.s2,\n.prototype[data-story-state=s3] .st.s3{display:block}\n.prototype:not([data-story-state]) button[data-story-to=s1],.prototype[data-story-state=s1] button[data-story-to=s1],\n.prototype[data-story-state=s2] button[data-story-to=s2],.prototype[data-story-state=s3] button[data-story-to=s3]\n{background:#3b5bdb;border-color:#748ffc}\n.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#111}\n.row2{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;background:#111}\n.row3 figure,.row2 figure{margin:0}.row3 figcaption,.row2 figcaption{font:12px system-ui;color:#bbb;padding:4px}\npre.code{margin:0;padding:12px;background:#0d0d10;color:#dfe3ea;font:11.5px/1.45 ui-monospace,monospace;\nwhite-space:pre-wrap;max-height:620px;overflow:auto}\n</style><div class=\"rv\"><img class=\"st s1\" src=\"media/robot-viewer-2026-11-28/shots/v1-dual_arm.png\" alt=\"Servos › left_arm\" loading=\"eager\"><img class=\"st s2\" src=\"media/robot-viewer-2026-11-28/shots/v1-dual_arm-servos_right_arm.png\" alt=\"Servos › right_arm\" loading=\"eager\"><img class=\"st s3\" src=\"media/robot-viewer-2026-11-28/shots/v1-dual_arm-config.png\" alt=\"Config\" loading=\"eager\"><div class=\"chips\"><button data-story-to=\"s1\">Servos › left_arm</button><button data-story-to=\"s2\">Servos › right_arm</button><button data-story-to=\"s3\">Config</button></div></div>",
+   "story": {
+    "title": "Tabs by part type: three states",
+    "steps": [
+     {
+      "label": "Servos, left arm",
+      "caption": "One plot per joint: command dots, state line; a temperature plot closes the grid.",
+      "state": "s1",
+      "target": "button[data-story-to=\"s1\"]"
+     },
+     {
+      "label": "Servos, right arm",
+      "caption": "The faulted elbow: the state line goes flat at 2.6 s while the command dots carry on.",
+      "state": "s2",
+      "target": "button[data-story-to=\"s2\"]"
+     },
+     {
+      "label": "Config",
+      "caption": "Every servo's kp, kd, current cap and limits, and each camera, per group.",
+      "state": "s3",
+      "target": "button[data-story-to=\"s3\"]"
+     }
+    ]
+   },
+   "media": [
+    {
+     "label": "Dual-arm cell played 0 → 5 s (real Rerun web viewer)",
+     "caption": "Plays the cell, then clicks Servos › right_arm (3.5 s) and Cameras (6.5 s).",
+     "html": "<video src=\"media/robot-viewer-2026-11-28/video/v1-dual_arm.mp4\" poster=\"media/robot-viewer-2026-11-28/video/v1-dual_arm.webp\" autoplay muted loop playsinline controls style=\"width:100%\"></video>"
+    },
+    {
+     "label": "Same layout function, three robots",
+     "caption": "Nothing per robot: the one blueprint function walks each description tree. Look at how the page grows from one servo to twelve.",
+     "html": "<style>\n.rv{font:13px/1.4 system-ui,sans-serif;color:#e8e8ea;background:#111;border-radius:8px;overflow:hidden}\n.rv img{display:block;width:100%;height:auto}\n.rv .st{display:none}.rv .chips{display:flex;gap:6px;padding:8px;flex-wrap:wrap;background:#1b1b1f}\n.rv button{font:inherit;padding:4px 10px;border-radius:14px;border:1px solid #555;background:#26262b;color:#eee;cursor:pointer}\n.prototype:not([data-story-state]) .st.s1,.prototype[data-story-state=s1] .st.s1,.prototype[data-story-state=s2] .st.s2,\n.prototype[data-story-state=s3] .st.s3{display:block}\n.prototype:not([data-story-state]) button[data-story-to=s1],.prototype[data-story-state=s1] button[data-story-to=s1],\n.prototype[data-story-state=s2] button[data-story-to=s2],.prototype[data-story-state=s3] button[data-story-to=s3]\n{background:#3b5bdb;border-color:#748ffc}\n.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#111}\n.row2{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;background:#111}\n.row3 figure,.row2 figure{margin:0}.row3 figcaption,.row2 figcaption{font:12px system-ui;color:#bbb;padding:4px}\npre.code{margin:0;padding:12px;background:#0d0d10;color:#dfe3ea;font:11.5px/1.45 ui-monospace,monospace;\nwhite-space:pre-wrap;max-height:620px;overflow:auto}\n</style><div class=\"row3\"><figure><img src=\"media/robot-viewer-2026-11-28/shots/v1-pendulum.png\" alt=\"pendulum\"><figcaption>1-DOF pendulum + side camera</figcaption></figure><figure><img src=\"media/robot-viewer-2026-11-28/shots/v1-ur5e.png\" alt=\"ur5e\"><figcaption>UR5e + wrist camera</figcaption></figure><figure><img src=\"media/robot-viewer-2026-11-28/shots/v1-dual_arm.png\" alt=\"dual_arm\"><figcaption>dual-arm cell</figcaption></figure></div>"
+    },
+    {
+     "label": "Cameras tab",
+     "caption": "Each camera full size, but never beside the joints it watches.",
+     "html": "<style>\n.rv{font:13px/1.4 system-ui,sans-serif;color:#e8e8ea;background:#111;border-radius:8px;overflow:hidden}\n.rv img{display:block;width:100%;height:auto}\n.rv .st{display:none}.rv .chips{display:flex;gap:6px;padding:8px;flex-wrap:wrap;background:#1b1b1f}\n.rv button{font:inherit;padding:4px 10px;border-radius:14px;border:1px solid #555;background:#26262b;color:#eee;cursor:pointer}\n.prototype:not([data-story-state]) .st.s1,.prototype[data-story-state=s1] .st.s1,.prototype[data-story-state=s2] .st.s2,\n.prototype[data-story-state=s3] .st.s3{display:block}\n.prototype:not([data-story-state]) button[data-story-to=s1],.prototype[data-story-state=s1] button[data-story-to=s1],\n.prototype[data-story-state=s2] button[data-story-to=s2],.prototype[data-story-state=s3] button[data-story-to=s3]\n{background:#3b5bdb;border-color:#748ffc}\n.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#111}\n.row2{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;background:#111}\n.row3 figure,.row2 figure{margin:0}.row3 figcaption,.row2 figcaption{font:12px system-ui;color:#bbb;padding:4px}\npre.code{margin:0;padding:12px;background:#0d0d10;color:#dfe3ea;font:11.5px/1.45 ui-monospace,monospace;\nwhite-space:pre-wrap;max-height:620px;overflow:auto}\n</style><div class=\"row2\"><figure><img src=\"media/robot-viewer-2026-11-28/shots/v1-dual_arm-cameras.png\" alt=\"dual-arm cell · Cameras\"><figcaption>dual-arm cell · Cameras</figcaption></figure><figure><img src=\"media/robot-viewer-2026-11-28/shots/v1-pendulum-cameras.png\" alt=\"pendulum · Cameras\"><figcaption>pendulum · Cameras</figcaption></figure></div>"
+    },
+    {
+     "label": "The layout function",
+     "caption": "Groups come from servo_groups(tree); the three tabs are fixed.",
+     "html": "<style>\n.rv{font:13px/1.4 system-ui,sans-serif;color:#e8e8ea;background:#111;border-radius:8px;overflow:hidden}\n.rv img{display:block;width:100%;height:auto}\n.rv .st{display:none}.rv .chips{display:flex;gap:6px;padding:8px;flex-wrap:wrap;background:#1b1b1f}\n.rv button{font:inherit;padding:4px 10px;border-radius:14px;border:1px solid #555;background:#26262b;color:#eee;cursor:pointer}\n.prototype:not([data-story-state]) .st.s1,.prototype[data-story-state=s1] .st.s1,.prototype[data-story-state=s2] .st.s2,\n.prototype[data-story-state=s3] .st.s3{display:block}\n.prototype:not([data-story-state]) button[data-story-to=s1],.prototype[data-story-state=s1] button[data-story-to=s1],\n.prototype[data-story-state=s2] button[data-story-to=s2],.prototype[data-story-state=s3] button[data-story-to=s3]\n{background:#3b5bdb;border-color:#748ffc}\n.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#111}\n.row2{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;background:#111}\n.row3 figure,.row2 figure{margin:0}.row3 figcaption,.row2 figcaption{font:12px system-ui;color:#bbb;padding:4px}\npre.code{margin:0;padding:12px;background:#0d0d10;color:#dfe3ea;font:11.5px/1.45 ui-monospace,monospace;\nwhite-space:pre-wrap;max-height:620px;overflow:auto}\n</style><pre class=\"code\">def v1_tabs_by_type(robot: str, scene: Scene, tab: int = 0, sub_tab: int = 0) -&gt; rrb.Blueprint:\n    &quot;&quot;&quot;V1 Zach&#x27;s sketch: Servos / Cameras / Config. Servos grouped by the subtree they hang off.&quot;&quot;&quot;\n    root = ROBOTS[robot]\n    groups = []\n    for group, servos in servo_groups(root):\n        cells = [_position_plot(p, f&quot;{p.split(&#x27;/&#x27;)[-1]} · ° cmd ··· state —&quot;) for p, _ in servos]\n        cells.append(_overlay(f&quot;{group} · temperature °C&quot;, [p for p, _ in servos], [&quot;temperature&quot;], legend=False))\n        groups.append(rrb.Grid(*cells, grid_columns=min(4, len(cells)), name=group))\n    # WHY sub-tabs per subtree: Zach, &quot;on servos you can break down by right arm etc so you don&#x27;t have a crazy huge list&quot;\n    servos_tab = rrb.Tabs(*groups, name=&quot;Servos&quot;, active_tab=sub_tab) if len(groups) &gt; 1 else rrb.Vertical(groups[0], name=&quot;Servos&quot;)\n    cams = [_camera_view(p) for p, _ in cameras_of(root)]\n    cameras_tab = rrb.Grid(*cams, grid_columns=min(2, len(cams)), name=&quot;Cameras&quot;)\n    config_tab = rrb.Vertical(*[rrb.TextDocumentView(origin=f&quot;/config/{d}&quot;, name=f&quot;{d} · config&quot;)\n                                for d in config_docs(root)], name=&quot;Config&quot;)  # fmt: skip\n    return _frame(robot, scene, rrb.Tabs(servos_tab, cameras_tab, config_tab, active_tab=tab))</pre>"
+    }
+   ],
+   "scores": {
+    "fr1": {
+     "score": 4,
+     "evidence": "One joint per plot, ~330 px tall; the right elbow's flat state vs moving command is obvious (sub-tab still). Only one arm visible at a time.",
+     "confidence": "high"
+    },
+    "fr2": {
+     "score": 4,
+     "evidence": "Plots, sub-tabs, cameras and config tables are all derived from the tree; but the tab set is a fixed type list, so a new part kind needs a new tab.",
+     "confidence": "high"
+    },
+    "fr3": {
+     "score": 4,
+     "evidence": "Pendulum: 1 plot; dual-arm: 2 sub-tabs × 7 plots. No long list, but a 4-arm cell means 4 sub-tabs.",
+     "confidence": "high"
+    },
+    "fr4": {
+     "score": 3,
+     "evidence": "Cameras get a whole tab, large and legible, but are never seen with the servos; only frustums show in 3D.",
+     "confidence": "high"
+    },
+    "fr5": {
+     "score": 5,
+     "evidence": "Config tab: a full table per group (bus/id, kp, kd, max A, limits) plus cameras, fully readable.",
+     "confidence": "high"
+    }
+   },
+   "gateResults": {
+    "g1": {
+     "pass": true,
+     "evidence": "The builder only logs to an .rrd; there is no command path and no transport is imported or opened."
+    },
+    "g2": {
+     "pass": true,
+     "evidence": "All 15 recordings (and the tab variants) loaded in the stock Rerun 0.40 web viewer from the saved .rrd with their blueprint, 0 viewer errors, no panic."
+    },
+    "g3": {
+     "pass": true,
+     "evidence": "Every blueprint is _frame(): Horizontal(Spatial3DView, …) with the 3D first; seen in every still."
+    }
+   }
+  },
+  {
+   "id": "v2",
+   "name": "Tabs mirror the tree",
+   "thesis": "One tab per top-level part; each tab is that part's stock view, built recursively from its children's stock views by a kind → view registry.",
+   "accent": "#2fb380",
+   "bestWhen": "Descriptions get composed and re-composed (pendulum → arm → cell → line) and you look at one subsystem at a time.",
+   "losesWhen": "You want the whole cell at once, or the same signal across arms side by side.",
+   "decisions": [
+    {
+     "label": "Primary grouping",
+     "value": "by the description tree's top level"
+    },
+    {
+     "label": "Composition",
+     "value": "STOCK_VIEWS[kind](path, part) recurses; a new kind is one entry"
+    },
+    {
+     "label": "Cameras",
+     "value": "inside the part they belong to (wrist camera in its arm's tab)"
+    }
+   ],
+   "keepParts": [
+    "kind → stock view registry",
+    "wrist camera inside its arm's tab",
+    "tab per top-level part"
+   ],
+   "proof": [
+    "Built by build.py into a real .rrd and shot in the stock Rerun 0.40 web viewer, headless (0 viewer errors).",
+    "Same recording as the other four; only the blueprint differs."
+   ],
+   "previewLabel": "real Rerun stills",
+   "preview": "<style>\n.rv{font:13px/1.4 system-ui,sans-serif;color:#e8e8ea;background:#111;border-radius:8px;overflow:hidden}\n.rv img{display:block;width:100%;height:auto}\n.rv .st{display:none}.rv .chips{display:flex;gap:6px;padding:8px;flex-wrap:wrap;background:#1b1b1f}\n.rv button{font:inherit;padding:4px 10px;border-radius:14px;border:1px solid #555;background:#26262b;color:#eee;cursor:pointer}\n.prototype:not([data-story-state]) .st.s1,.prototype[data-story-state=s1] .st.s1,.prototype[data-story-state=s2] .st.s2,\n.prototype[data-story-state=s3] .st.s3{display:block}\n.prototype:not([data-story-state]) button[data-story-to=s1],.prototype[data-story-state=s1] button[data-story-to=s1],\n.prototype[data-story-state=s2] button[data-story-to=s2],.prototype[data-story-state=s3] button[data-story-to=s3]\n{background:#3b5bdb;border-color:#748ffc}\n.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#111}\n.row2{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;background:#111}\n.row3 figure,.row2 figure{margin:0}.row3 figcaption,.row2 figcaption{font:12px system-ui;color:#bbb;padding:4px}\npre.code{margin:0;padding:12px;background:#0d0d10;color:#dfe3ea;font:11.5px/1.45 ui-monospace,monospace;\nwhite-space:pre-wrap;max-height:620px;overflow:auto}\n</style><div class=\"rv\"><img class=\"st s1\" src=\"media/robot-viewer-2026-11-28/shots/v2-dual_arm.png\" alt=\"left_arm\" loading=\"eager\"><img class=\"st s2\" src=\"media/robot-viewer-2026-11-28/shots/v2-dual_arm-right_arm.png\" alt=\"right_arm\" loading=\"eager\"><img class=\"st s3\" src=\"media/robot-viewer-2026-11-28/shots/v2-dual_arm-overhead_camera.png\" alt=\"overhead_camera\" loading=\"eager\"><div class=\"chips\"><button data-story-to=\"s1\">left_arm</button><button data-story-to=\"s2\">right_arm</button><button data-story-to=\"s3\">overhead_camera</button></div></div>",
+   "story": {
+    "title": "Tabs mirror the tree: three states",
+    "steps": [
+     {
+      "label": "left_arm tab",
+      "caption": "The arm's six joints and its wrist camera, each with its own config card.",
+      "state": "s1",
+      "target": "button[data-story-to=\"s1\"]"
+     },
+     {
+      "label": "right_arm tab",
+      "caption": "Same stock view, the other subtree: the faulted elbow sits with its config.",
+      "state": "s2",
+      "target": "button[data-story-to=\"s2\"]"
+     },
+     {
+      "label": "overhead_camera tab",
+      "caption": "A cell-level part gets its own tab with no layout edit.",
+      "state": "s3",
+      "target": "button[data-story-to=\"s3\"]"
+     }
+    ]
+   },
+   "media": [
+    {
+     "label": "Dual-arm cell played 0 → 5 s (real Rerun web viewer)",
+     "caption": "Plays the cell, then clicks the right_arm (3.5 s) and overhead_camera (6.5 s) tabs.",
+     "html": "<video src=\"media/robot-viewer-2026-11-28/video/v2-dual_arm.mp4\" poster=\"media/robot-viewer-2026-11-28/video/v2-dual_arm.webp\" autoplay muted loop playsinline controls style=\"width:100%\"></video>"
+    },
+    {
+     "label": "Same layout function, three robots",
+     "caption": "Nothing per robot: the one blueprint function walks each description tree. Look at how the page grows from one servo to twelve.",
+     "html": "<style>\n.rv{font:13px/1.4 system-ui,sans-serif;color:#e8e8ea;background:#111;border-radius:8px;overflow:hidden}\n.rv img{display:block;width:100%;height:auto}\n.rv .st{display:none}.rv .chips{display:flex;gap:6px;padding:8px;flex-wrap:wrap;background:#1b1b1f}\n.rv button{font:inherit;padding:4px 10px;border-radius:14px;border:1px solid #555;background:#26262b;color:#eee;cursor:pointer}\n.prototype:not([data-story-state]) .st.s1,.prototype[data-story-state=s1] .st.s1,.prototype[data-story-state=s2] .st.s2,\n.prototype[data-story-state=s3] .st.s3{display:block}\n.prototype:not([data-story-state]) button[data-story-to=s1],.prototype[data-story-state=s1] button[data-story-to=s1],\n.prototype[data-story-state=s2] button[data-story-to=s2],.prototype[data-story-state=s3] button[data-story-to=s3]\n{background:#3b5bdb;border-color:#748ffc}\n.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#111}\n.row2{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;background:#111}\n.row3 figure,.row2 figure{margin:0}.row3 figcaption,.row2 figcaption{font:12px system-ui;color:#bbb;padding:4px}\npre.code{margin:0;padding:12px;background:#0d0d10;color:#dfe3ea;font:11.5px/1.45 ui-monospace,monospace;\nwhite-space:pre-wrap;max-height:620px;overflow:auto}\n</style><div class=\"row3\"><figure><img src=\"media/robot-viewer-2026-11-28/shots/v2-pendulum.png\" alt=\"pendulum\"><figcaption>1-DOF pendulum + side camera</figcaption></figure><figure><img src=\"media/robot-viewer-2026-11-28/shots/v2-ur5e.png\" alt=\"ur5e\"><figcaption>UR5e + wrist camera</figcaption></figure><figure><img src=\"media/robot-viewer-2026-11-28/shots/v2-dual_arm.png\" alt=\"dual_arm\"><figcaption>dual-arm cell</figcaption></figure></div>"
+    },
+    {
+     "label": "The whole layout: a registry and a recursion",
+     "caption": "Adding a part to the description adds its view; adding a kind adds one entry.",
+     "html": "<style>\n.rv{font:13px/1.4 system-ui,sans-serif;color:#e8e8ea;background:#111;border-radius:8px;overflow:hidden}\n.rv img{display:block;width:100%;height:auto}\n.rv .st{display:none}.rv .chips{display:flex;gap:6px;padding:8px;flex-wrap:wrap;background:#1b1b1f}\n.rv button{font:inherit;padding:4px 10px;border-radius:14px;border:1px solid #555;background:#26262b;color:#eee;cursor:pointer}\n.prototype:not([data-story-state]) .st.s1,.prototype[data-story-state=s1] .st.s1,.prototype[data-story-state=s2] .st.s2,\n.prototype[data-story-state=s3] .st.s3{display:block}\n.prototype:not([data-story-state]) button[data-story-to=s1],.prototype[data-story-state=s1] button[data-story-to=s1],\n.prototype[data-story-state=s2] button[data-story-to=s2],.prototype[data-story-state=s3] button[data-story-to=s3]\n{background:#3b5bdb;border-color:#748ffc}\n.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#111}\n.row2{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;background:#111}\n.row3 figure,.row2 figure{margin:0}.row3 figcaption,.row2 figcaption{font:12px system-ui;color:#bbb;padding:4px}\npre.code{margin:0;padding:12px;background:#0d0d10;color:#dfe3ea;font:11.5px/1.45 ui-monospace,monospace;\nwhite-space:pre-wrap;max-height:620px;overflow:auto}\n</style><pre class=\"code\">def _stock_servo(path: str, part: Part) -&gt; rrb.Container:\n    return rrb.Vertical(_position_plot(path, f&quot;{path.split(&#x27;/&#x27;)[-1]} · ° cmd ··· state —&quot;), _config_view(path),\n                        row_shares=[1.5, 1], name=path)  # fmt: skip\ndef _stock_camera(path: str, part: Part) -&gt; rrb.Container:\n    return rrb.Vertical(_camera_view(path), _config_view(path), row_shares=[2.2, 1], name=path)\ndef _stock_group(path: str, part: Part) -&gt; rrb.Container:\n    kids = [stock_view(f&quot;{path}/{c.name}&quot; if path else c.name, c) for c in part.children]\n    return rrb.Grid(*kids, grid_columns=math.ceil(math.sqrt(len(kids))) if len(kids) &gt; 3 else len(kids), name=path)\nSTOCK_VIEWS: dict[str, Callable[[str, Part], rrb.Container]] = {\n    &quot;servo&quot;: _stock_servo, &quot;camera&quot;: _stock_camera, &quot;group&quot;: _stock_group}  # fmt: skip\ndef stock_view(path: str, part: Part) -&gt; rrb.Container:\n    return STOCK_VIEWS[part.kind](path, part)\ndef v2_tabs_mirror_tree(robot: str, scene: Scene, tab: int = 0) -&gt; rrb.Blueprint:\n    &quot;&quot;&quot;V2: one tab per top-level part; each tab is that part&#x27;s stock view, composed recursively from its children.&quot;&quot;&quot;\n    root = ROBOTS[robot]\n    return _frame(robot, scene, rrb.Tabs(*[stock_view(c.name, c) for c in root.children], active_tab=tab))</pre>"
+    }
+   ],
+   "scores": {
+    "fr1": {
+     "score": 3,
+     "evidence": "Per-joint plots but ~150 px tall, sharing the tab with config cards; cmd/state separation readable, smaller than V1.",
+     "confidence": "medium"
+    },
+    "fr2": {
+     "score": 5,
+     "evidence": "The layout is STOCK_VIEWS recursion over the tree: the pendulum, the arm and the cell all came out of it with no per-robot code; a new kind is one registry line.",
+     "confidence": "high"
+    },
+    "fr3": {
+     "score": 4,
+     "evidence": "Dual-arm: 3 tabs, 7 cards each. Deep trees nest grids, which will get small past two levels.",
+     "confidence": "medium"
+    },
+    "fr4": {
+     "score": 4,
+     "evidence": "Each wrist camera sits beside its own arm's joints; the overhead camera is its own tab (not seen with the arms).",
+     "confidence": "medium"
+    },
+    "fr5": {
+     "score": 3,
+     "evidence": "A config card per part, right next to its plot, but cut to two lines at 1440×900; the full table needs a maximise.",
+     "confidence": "high"
+    }
+   },
+   "gateResults": {
+    "g1": {
+     "pass": true,
+     "evidence": "The builder only logs to an .rrd; there is no command path and no transport is imported or opened."
+    },
+    "g2": {
+     "pass": true,
+     "evidence": "All 15 recordings (and the tab variants) loaded in the stock Rerun 0.40 web viewer from the saved .rrd with their blueprint, 0 viewer errors, no panic."
+    },
+    "g3": {
+     "pass": true,
+     "evidence": "Every blueprint is _frame(): Horizontal(Spatial3DView, …) with the 3D first; seen in every still."
+    }
+   }
+  },
+  {
+   "id": "v3",
+   "name": "tview overview",
+   "thesis": "No tabs: one read-only page like moteus tview, a live table of every servo's cmd, state, error, temperature and fault at the playhead, camera thumbnails, two summary plots.",
+   "accent": "#e0a030",
+   "bestWhen": "You are commissioning or watching live and want the numbers now, every part on one screen.",
+   "losesWhen": "You need history per joint, or the cell grows past ~15 servos (the table scrolls).",
+   "decisions": [
+    {
+     "label": "Primary object",
+     "value": "the playhead: a markdown table regenerated each tick"
+    },
+    {
+     "label": "Problems",
+     "value": "bold error > 2°, ⚠ temperature ≥ 60 °C, ⛔ fault code with its name"
+    },
+    {
+     "label": "History",
+     "value": "only two overlays: tracking error and temperature, every servo"
+    }
+   ],
+   "keepParts": [
+    "live now-table with flagged cells",
+    "always-on camera thumbnails",
+    "error overlay plot"
+   ],
+   "proof": [
+    "Built by build.py into a real .rrd and shot in the stock Rerun 0.40 web viewer, headless (0 viewer errors).",
+    "Same recording as the other four; only the blueprint differs."
+   ],
+   "previewLabel": "real Rerun stills",
+   "preview": "<style>\n.rv{font:13px/1.4 system-ui,sans-serif;color:#e8e8ea;background:#111;border-radius:8px;overflow:hidden}\n.rv img{display:block;width:100%;height:auto}\n.rv .st{display:none}.rv .chips{display:flex;gap:6px;padding:8px;flex-wrap:wrap;background:#1b1b1f}\n.rv button{font:inherit;padding:4px 10px;border-radius:14px;border:1px solid #555;background:#26262b;color:#eee;cursor:pointer}\n.prototype:not([data-story-state]) .st.s1,.prototype[data-story-state=s1] .st.s1,.prototype[data-story-state=s2] .st.s2,\n.prototype[data-story-state=s3] .st.s3{display:block}\n.prototype:not([data-story-state]) button[data-story-to=s1],.prototype[data-story-state=s1] button[data-story-to=s1],\n.prototype[data-story-state=s2] button[data-story-to=s2],.prototype[data-story-state=s3] button[data-story-to=s3]\n{background:#3b5bdb;border-color:#748ffc}\n.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#111}\n.row2{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;background:#111}\n.row3 figure,.row2 figure{margin:0}.row3 figcaption,.row2 figcaption{font:12px system-ui;color:#bbb;padding:4px}\npre.code{margin:0;padding:12px;background:#0d0d10;color:#dfe3ea;font:11.5px/1.45 ui-monospace,monospace;\nwhite-space:pre-wrap;max-height:620px;overflow:auto}\n</style><div class=\"rv\"><img class=\"st s1\" src=\"media/robot-viewer-2026-11-28/shots/v3-dual_arm.png\" alt=\"dual-arm cell\" loading=\"eager\"><img class=\"st s2\" src=\"media/robot-viewer-2026-11-28/shots/v3-ur5e.png\" alt=\"UR5e\" loading=\"eager\"><img class=\"st s3\" src=\"media/robot-viewer-2026-11-28/shots/v3-pendulum.png\" alt=\"pendulum\" loading=\"eager\"><div class=\"chips\"><button data-story-to=\"s1\">dual-arm cell</button><button data-story-to=\"s2\">UR5e</button><button data-story-to=\"s3\">pendulum</button></div></div>",
+   "story": {
+    "title": "tview overview: three states",
+    "steps": [
+     {
+      "label": "Dual-arm cell",
+      "caption": "Every servo of both arms in one table; the elbow's ⛔ 33 and −23.8° error stand out.",
+      "state": "s1",
+      "target": "button[data-story-to=\"s1\"]"
+     },
+     {
+      "label": "UR5e",
+      "caption": "The same page for one arm: one group in the table, one wrist camera.",
+      "state": "s2",
+      "target": "button[data-story-to=\"s2\"]"
+     },
+     {
+      "label": "Pendulum",
+      "caption": "One row, one camera: the page shrinks with the description.",
+      "state": "s3",
+      "target": "button[data-story-to=\"s3\"]"
+     }
+    ]
+   },
+   "media": [
+    {
+     "label": "Dual-arm cell played 0 → 5 s (real Rerun web viewer)",
+     "caption": "Plays the cell: the table's numbers move with the playhead; the elbow flags at 2.6 s.",
+     "html": "<video src=\"media/robot-viewer-2026-11-28/video/v3-dual_arm.mp4\" poster=\"media/robot-viewer-2026-11-28/video/v3-dual_arm.webp\" autoplay muted loop playsinline controls style=\"width:100%\"></video>"
+    },
+    {
+     "label": "Same layout function, three robots",
+     "caption": "Nothing per robot: the one blueprint function walks each description tree. Look at how the page grows from one servo to twelve.",
+     "html": "<style>\n.rv{font:13px/1.4 system-ui,sans-serif;color:#e8e8ea;background:#111;border-radius:8px;overflow:hidden}\n.rv img{display:block;width:100%;height:auto}\n.rv .st{display:none}.rv .chips{display:flex;gap:6px;padding:8px;flex-wrap:wrap;background:#1b1b1f}\n.rv button{font:inherit;padding:4px 10px;border-radius:14px;border:1px solid #555;background:#26262b;color:#eee;cursor:pointer}\n.prototype:not([data-story-state]) .st.s1,.prototype[data-story-state=s1] .st.s1,.prototype[data-story-state=s2] .st.s2,\n.prototype[data-story-state=s3] .st.s3{display:block}\n.prototype:not([data-story-state]) button[data-story-to=s1],.prototype[data-story-state=s1] button[data-story-to=s1],\n.prototype[data-story-state=s2] button[data-story-to=s2],.prototype[data-story-state=s3] button[data-story-to=s3]\n{background:#3b5bdb;border-color:#748ffc}\n.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#111}\n.row2{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;background:#111}\n.row3 figure,.row2 figure{margin:0}.row3 figcaption,.row2 figcaption{font:12px system-ui;color:#bbb;padding:4px}\npre.code{margin:0;padding:12px;background:#0d0d10;color:#dfe3ea;font:11.5px/1.45 ui-monospace,monospace;\nwhite-space:pre-wrap;max-height:620px;overflow:auto}\n</style><div class=\"row3\"><figure><img src=\"media/robot-viewer-2026-11-28/shots/v3-pendulum.png\" alt=\"pendulum\"><figcaption>1-DOF pendulum + side camera</figcaption></figure><figure><img src=\"media/robot-viewer-2026-11-28/shots/v3-ur5e.png\" alt=\"ur5e\"><figcaption>UR5e + wrist camera</figcaption></figure><figure><img src=\"media/robot-viewer-2026-11-28/shots/v3-dual_arm.png\" alt=\"dual_arm\"><figcaption>dual-arm cell</figcaption></figure></div>"
+    },
+    {
+     "label": "The layout function",
+     "caption": "One page; the table text is built from the tree each tick.",
+     "html": "<style>\n.rv{font:13px/1.4 system-ui,sans-serif;color:#e8e8ea;background:#111;border-radius:8px;overflow:hidden}\n.rv img{display:block;width:100%;height:auto}\n.rv .st{display:none}.rv .chips{display:flex;gap:6px;padding:8px;flex-wrap:wrap;background:#1b1b1f}\n.rv button{font:inherit;padding:4px 10px;border-radius:14px;border:1px solid #555;background:#26262b;color:#eee;cursor:pointer}\n.prototype:not([data-story-state]) .st.s1,.prototype[data-story-state=s1] .st.s1,.prototype[data-story-state=s2] .st.s2,\n.prototype[data-story-state=s3] .st.s3{display:block}\n.prototype:not([data-story-state]) button[data-story-to=s1],.prototype[data-story-state=s1] button[data-story-to=s1],\n.prototype[data-story-state=s2] button[data-story-to=s2],.prototype[data-story-state=s3] button[data-story-to=s3]\n{background:#3b5bdb;border-color:#748ffc}\n.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#111}\n.row2{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;background:#111}\n.row3 figure,.row2 figure{margin:0}.row3 figcaption,.row2 figcaption{font:12px system-ui;color:#bbb;padding:4px}\npre.code{margin:0;padding:12px;background:#0d0d10;color:#dfe3ea;font:11.5px/1.45 ui-monospace,monospace;\nwhite-space:pre-wrap;max-height:620px;overflow:auto}\n</style><pre class=\"code\">def v3_tview(robot: str, scene: Scene, tab: int = 0) -&gt; rrb.Blueprint:\n    &quot;&quot;&quot;V3: one read-only page like moteus tview: the live table first, camera thumbnails, two summary plots.&quot;&quot;&quot;\n    root = ROBOTS[robot]\n    servos = [p for p, _ in servos_of(root)]\n    cams = [_camera_view(p) for p, _ in cameras_of(root)]\n    right = rrb.Vertical(\n        rrb.TextDocumentView(origin=&quot;/now&quot;, name=&quot;now · every servo and camera at the playhead&quot;),\n        rrb.Horizontal(*cams, name=&quot;cameras&quot;),\n        rrb.Horizontal(_overlay(&quot;tracking error ° (cmd − state), every servo&quot;, servos, [&quot;position/error&quot;], False),\n                       _overlay(&quot;temperature °C, every servo&quot;, servos, [&quot;temperature&quot;], False)),\n        row_shares=[4.6, 1.1, 1.0],\n    )  # fmt: skip\n    return _frame(robot, scene, right)</pre>"
+    }
+   ],
+   "scores": {
+    "fr1": {
+     "score": 4,
+     "evidence": "cmd, state and error side by side as numbers with problems flagged: the fastest read at the playhead; history is only the error overlay.",
+     "confidence": "medium"
+    },
+    "fr2": {
+     "score": 4,
+     "evidence": "Table rows, groups and thumbnails are generated from the tree; the page structure itself is fixed (fine, it has no per-kind sections).",
+     "confidence": "medium"
+    },
+    "fr3": {
+     "score": 3,
+     "evidence": "Dual-arm (12 servos) already pushes right_arm's last row below the fold; a bigger cell is a scrolling list, the thing Zach wanted to avoid.",
+     "confidence": "high"
+    },
+    "fr4": {
+     "score": 4,
+     "evidence": "All camera feeds always visible beside the numbers, as thumbnails (~220 px).",
+     "confidence": "high"
+    },
+    "fr5": {
+     "score": 3,
+     "evidence": "Config is a table under the live one, in the same scroll; readable but out of sight on the dual-arm cell.",
+     "confidence": "medium"
+    }
+   },
+   "gateResults": {
+    "g1": {
+     "pass": true,
+     "evidence": "The builder only logs to an .rrd; there is no command path and no transport is imported or opened."
+    },
+    "g2": {
+     "pass": true,
+     "evidence": "All 15 recordings (and the tab variants) loaded in the stock Rerun 0.40 web viewer from the saved .rrd with their blueprint, 0 viewer errors, no panic."
+    },
+    "g3": {
+     "pass": true,
+     "evidence": "Every blueprint is _frame(): Horizontal(Spatial3DView, …) with the 3D first; seen in every still."
+    }
+   }
+  },
+  {
+   "id": "v4",
+   "name": "Tabs by signal",
+   "thesis": "Tabs Position / Velocity / Effort / Health / Cameras / Config; in each, one plot per subtree overlays all its joints, command dots against state lines.",
+   "accent": "#c25cf0",
+   "bestWhen": "You compare the same quantity across arms (is left tracking like right?) or hunt one signal's anomaly.",
+   "losesWhen": "Six overlaid joints hide one joint's lag; you must pick the colour out of a key.",
+   "decisions": [
+    {
+     "label": "Primary grouping",
+     "value": "by signal, then by subtree"
+    },
+    {
+     "label": "Legends",
+     "value": "off; a colour key in the title (a 12-entry legend hid half the curves)"
+    },
+    {
+     "label": "Health",
+     "value": "tracking error, temperature and fault code per subtree"
+    }
+   ],
+   "keepParts": [
+    "Health tab (error · temp · fault)",
+    "one plot per subtree per signal",
+    "Config tab"
+   ],
+   "proof": [
+    "Built by build.py into a real .rrd and shot in the stock Rerun 0.40 web viewer, headless (0 viewer errors).",
+    "Same recording as the other four; only the blueprint differs."
+   ],
+   "previewLabel": "real Rerun stills",
+   "preview": "<style>\n.rv{font:13px/1.4 system-ui,sans-serif;color:#e8e8ea;background:#111;border-radius:8px;overflow:hidden}\n.rv img{display:block;width:100%;height:auto}\n.rv .st{display:none}.rv .chips{display:flex;gap:6px;padding:8px;flex-wrap:wrap;background:#1b1b1f}\n.rv button{font:inherit;padding:4px 10px;border-radius:14px;border:1px solid #555;background:#26262b;color:#eee;cursor:pointer}\n.prototype:not([data-story-state]) .st.s1,.prototype[data-story-state=s1] .st.s1,.prototype[data-story-state=s2] .st.s2,\n.prototype[data-story-state=s3] .st.s3{display:block}\n.prototype:not([data-story-state]) button[data-story-to=s1],.prototype[data-story-state=s1] button[data-story-to=s1],\n.prototype[data-story-state=s2] button[data-story-to=s2],.prototype[data-story-state=s3] button[data-story-to=s3]\n{background:#3b5bdb;border-color:#748ffc}\n.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#111}\n.row2{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;background:#111}\n.row3 figure,.row2 figure{margin:0}.row3 figcaption,.row2 figcaption{font:12px system-ui;color:#bbb;padding:4px}\npre.code{margin:0;padding:12px;background:#0d0d10;color:#dfe3ea;font:11.5px/1.45 ui-monospace,monospace;\nwhite-space:pre-wrap;max-height:620px;overflow:auto}\n</style><div class=\"rv\"><img class=\"st s1\" src=\"media/robot-viewer-2026-11-28/shots/v4-dual_arm.png\" alt=\"Position\" loading=\"eager\"><img class=\"st s2\" src=\"media/robot-viewer-2026-11-28/shots/v4-dual_arm-health.png\" alt=\"Health\" loading=\"eager\"><img class=\"st s3\" src=\"media/robot-viewer-2026-11-28/shots/v4-dual_arm-config.png\" alt=\"Config\" loading=\"eager\"><div class=\"chips\"><button data-story-to=\"s1\">Position</button><button data-story-to=\"s2\">Health</button><button data-story-to=\"s3\">Config</button></div></div>",
+   "story": {
+    "title": "Tabs by signal: three states",
+    "steps": [
+     {
+      "label": "Position",
+      "caption": "Both arms at once, each a plot of six joints, command dots over state lines.",
+      "state": "s1",
+      "target": "button[data-story-to=\"s1\"]"
+     },
+     {
+      "label": "Health",
+      "caption": "Tracking error, temperature and fault per arm: the elbow's fault code steps to 33.",
+      "state": "s2",
+      "target": "button[data-story-to=\"s2\"]"
+     },
+     {
+      "label": "Config",
+      "caption": "The same per-group config tables as V1.",
+      "state": "s3",
+      "target": "button[data-story-to=\"s3\"]"
+     }
+    ]
+   },
+   "media": [
+    {
+     "label": "Dual-arm cell played 0 → 5 s (real Rerun web viewer)",
+     "caption": "Plays the cell, then clicks Health (3.5 s) and Cameras (6.5 s).",
+     "html": "<video src=\"media/robot-viewer-2026-11-28/video/v4-dual_arm.mp4\" poster=\"media/robot-viewer-2026-11-28/video/v4-dual_arm.webp\" autoplay muted loop playsinline controls style=\"width:100%\"></video>"
+    },
+    {
+     "label": "Same layout function, three robots",
+     "caption": "Nothing per robot: the one blueprint function walks each description tree. Look at how the page grows from one servo to twelve.",
+     "html": "<style>\n.rv{font:13px/1.4 system-ui,sans-serif;color:#e8e8ea;background:#111;border-radius:8px;overflow:hidden}\n.rv img{display:block;width:100%;height:auto}\n.rv .st{display:none}.rv .chips{display:flex;gap:6px;padding:8px;flex-wrap:wrap;background:#1b1b1f}\n.rv button{font:inherit;padding:4px 10px;border-radius:14px;border:1px solid #555;background:#26262b;color:#eee;cursor:pointer}\n.prototype:not([data-story-state]) .st.s1,.prototype[data-story-state=s1] .st.s1,.prototype[data-story-state=s2] .st.s2,\n.prototype[data-story-state=s3] .st.s3{display:block}\n.prototype:not([data-story-state]) button[data-story-to=s1],.prototype[data-story-state=s1] button[data-story-to=s1],\n.prototype[data-story-state=s2] button[data-story-to=s2],.prototype[data-story-state=s3] button[data-story-to=s3]\n{background:#3b5bdb;border-color:#748ffc}\n.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#111}\n.row2{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;background:#111}\n.row3 figure,.row2 figure{margin:0}.row3 figcaption,.row2 figcaption{font:12px system-ui;color:#bbb;padding:4px}\npre.code{margin:0;padding:12px;background:#0d0d10;color:#dfe3ea;font:11.5px/1.45 ui-monospace,monospace;\nwhite-space:pre-wrap;max-height:620px;overflow:auto}\n</style><div class=\"row3\"><figure><img src=\"media/robot-viewer-2026-11-28/shots/v4-pendulum.png\" alt=\"pendulum\"><figcaption>1-DOF pendulum + side camera</figcaption></figure><figure><img src=\"media/robot-viewer-2026-11-28/shots/v4-ur5e.png\" alt=\"ur5e\"><figcaption>UR5e + wrist camera</figcaption></figure><figure><img src=\"media/robot-viewer-2026-11-28/shots/v4-dual_arm.png\" alt=\"dual_arm\"><figcaption>dual-arm cell</figcaption></figure></div>"
+    },
+    {
+     "label": "Velocity and effort tabs",
+     "caption": "The other signals keep the same per-subtree overlays.",
+     "html": "<style>\n.rv{font:13px/1.4 system-ui,sans-serif;color:#e8e8ea;background:#111;border-radius:8px;overflow:hidden}\n.rv img{display:block;width:100%;height:auto}\n.rv .st{display:none}.rv .chips{display:flex;gap:6px;padding:8px;flex-wrap:wrap;background:#1b1b1f}\n.rv button{font:inherit;padding:4px 10px;border-radius:14px;border:1px solid #555;background:#26262b;color:#eee;cursor:pointer}\n.prototype:not([data-story-state]) .st.s1,.prototype[data-story-state=s1] .st.s1,.prototype[data-story-state=s2] .st.s2,\n.prototype[data-story-state=s3] .st.s3{display:block}\n.prototype:not([data-story-state]) button[data-story-to=s1],.prototype[data-story-state=s1] button[data-story-to=s1],\n.prototype[data-story-state=s2] button[data-story-to=s2],.prototype[data-story-state=s3] button[data-story-to=s3]\n{background:#3b5bdb;border-color:#748ffc}\n.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#111}\n.row2{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;background:#111}\n.row3 figure,.row2 figure{margin:0}.row3 figcaption,.row2 figcaption{font:12px system-ui;color:#bbb;padding:4px}\npre.code{margin:0;padding:12px;background:#0d0d10;color:#dfe3ea;font:11.5px/1.45 ui-monospace,monospace;\nwhite-space:pre-wrap;max-height:620px;overflow:auto}\n</style><div class=\"row2\"><figure><img src=\"media/robot-viewer-2026-11-28/shots/v4-dual_arm-velocity.png\" alt=\"Velocity\"><figcaption>Velocity</figcaption></figure><figure><img src=\"media/robot-viewer-2026-11-28/shots/v4-dual_arm-effort.png\" alt=\"Effort\"><figcaption>Effort</figcaption></figure></div>"
+    },
+    {
+     "label": "The layout function",
+     "caption": "Subtrees from the tree; the signal tabs are fixed.",
+     "html": "<style>\n.rv{font:13px/1.4 system-ui,sans-serif;color:#e8e8ea;background:#111;border-radius:8px;overflow:hidden}\n.rv img{display:block;width:100%;height:auto}\n.rv .st{display:none}.rv .chips{display:flex;gap:6px;padding:8px;flex-wrap:wrap;background:#1b1b1f}\n.rv button{font:inherit;padding:4px 10px;border-radius:14px;border:1px solid #555;background:#26262b;color:#eee;cursor:pointer}\n.prototype:not([data-story-state]) .st.s1,.prototype[data-story-state=s1] .st.s1,.prototype[data-story-state=s2] .st.s2,\n.prototype[data-story-state=s3] .st.s3{display:block}\n.prototype:not([data-story-state]) button[data-story-to=s1],.prototype[data-story-state=s1] button[data-story-to=s1],\n.prototype[data-story-state=s2] button[data-story-to=s2],.prototype[data-story-state=s3] button[data-story-to=s3]\n{background:#3b5bdb;border-color:#748ffc}\n.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#111}\n.row2{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;background:#111}\n.row3 figure,.row2 figure{margin:0}.row3 figcaption,.row2 figcaption{font:12px system-ui;color:#bbb;padding:4px}\npre.code{margin:0;padding:12px;background:#0d0d10;color:#dfe3ea;font:11.5px/1.45 ui-monospace,monospace;\nwhite-space:pre-wrap;max-height:620px;overflow:auto}\n</style><pre class=\"code\">def v4_tabs_by_signal(robot: str, scene: Scene, tab: int = 0) -&gt; rrb.Blueprint:\n    &quot;&quot;&quot;V4: a tab per signal; in each, one plot per subtree overlays all its joints, command dots vs state lines.&quot;&quot;&quot;\n    root = ROBOTS[robot]\n    groups = servo_groups(root)\n\n    def per_group(signal: str, unit: str) -&gt; rrb.Vertical:\n        return rrb.Vertical(*[_overlay(f&quot;{g} · {signal} {unit} · cmd ··· state — · {_key(s)}&quot;, [p for p, _ in s],\n                                       [f&quot;{signal}/cmd&quot;, f&quot;{signal}/state&quot;], legend=False) for g, s in groups],\n                            name=signal.title())  # fmt: skip\n\n    health = rrb.Vertical(*[rrb.Horizontal(\n        _overlay(f&quot;{g} · tracking error ° · {_key(s)}&quot;, [p for p, _ in s], [&quot;position/error&quot;], legend=False),\n        _overlay(f&quot;{g} · temperature °C&quot;, [p for p, _ in s], [&quot;temperature&quot;], legend=False),\n        _overlay(f&quot;{g} · fault code&quot;, [p for p, _ in s], [&quot;fault&quot;], legend=False),\n        column_shares=[1.3, 1, 0.8]) for g, s in groups], name=&quot;Health&quot;)  # fmt: skip\n    cams = [_camera_view(p) for p, _ in cameras_of(root)]\n    config = rrb.Vertical(*[rrb.TextDocumentView(origin=f&quot;/config/{d}&quot;, name=f&quot;{d} · config&quot;)\n                            for d in config_docs(root)], name=&quot;Config&quot;)  # fmt: skip\n    return _frame(robot, scene, rrb.Tabs(per_group(&quot;position&quot;, &quot;°&quot;), per_group(&quot;velocity&quot;, &quot;°/s&quot;),\n                                         per_group(&quot;effort&quot;, &quot;N·m&quot;), health,\n                                         rrb.Grid(*cams, grid_columns=min(2, len(cams)), name=&quot;Cameras&quot;), config,\n                                         active_tab=tab))  # fmt: skip</pre>"
+    }
+   ],
+   "scores": {
+    "fr1": {
+     "score": 3,
+     "evidence": "Both arms visible together, but six joints per plot: the elbow's divergence reads, a single joint's lag needs the colour key or hover.",
+     "confidence": "high"
+    },
+    "fr2": {
+     "score": 4,
+     "evidence": "Per-subtree plots come from the tree; the six signal tabs are fixed, so a camera-only or IMU subtree has no natural place.",
+     "confidence": "medium"
+    },
+    "fr3": {
+     "score": 4,
+     "evidence": "One plot per subtree per signal whatever the joint count: dual-arm is two plots per tab; more arms just add rows.",
+     "confidence": "medium"
+    },
+    "fr4": {
+     "score": 3,
+     "evidence": "Cameras live in their own tab, apart from the signals.",
+     "confidence": "high"
+    },
+    "fr5": {
+     "score": 5,
+     "evidence": "Config tab: the same full per-group tables as V1.",
+     "confidence": "high"
+    }
+   },
+   "gateResults": {
+    "g1": {
+     "pass": true,
+     "evidence": "The builder only logs to an .rrd; there is no command path and no transport is imported or opened."
+    },
+    "g2": {
+     "pass": true,
+     "evidence": "All 15 recordings (and the tab variants) loaded in the stock Rerun 0.40 web viewer from the saved .rrd with their blueprint, 0 viewer errors, no panic."
+    },
+    "g3": {
+     "pass": true,
+     "evidence": "Every blueprint is _frame(): Horizontal(Spatial3DView, …) with the 3D first; seen in every still."
+    }
+   }
+  },
+  {
+   "id": "v5",
+   "name": "Part cards",
+   "thesis": "Every part is a card (plot + config, or image + config) nested to mirror the tree, rows and columns alternating by depth, everything visible at once.",
+   "accent": "#f0605a",
+   "bestWhen": "Small robots (≤ 7 parts) where seeing every part at once beats size.",
+   "losesWhen": "Anything bigger than one arm: twelve cards leave each plot ~60 px and the config cut off.",
+   "decisions": [
+    {
+     "label": "Visibility",
+     "value": "everything at once, no tabs"
+    },
+    {
+     "label": "Nesting",
+     "value": "Horizontal at even depth, Vertical at odd: the layout is the tree"
+    },
+    {
+     "label": "Card",
+     "value": "plot and config side by side, camera and config side by side"
+    }
+   ],
+   "keepParts": [
+    "card = signal + config together",
+    "layout drawn as the tree",
+    "no hidden state"
+   ],
+   "proof": [
+    "Built by build.py into a real .rrd and shot in the stock Rerun 0.40 web viewer, headless (0 viewer errors).",
+    "Same recording as the other four; only the blueprint differs."
+   ],
+   "previewLabel": "real Rerun stills",
+   "preview": "<style>\n.rv{font:13px/1.4 system-ui,sans-serif;color:#e8e8ea;background:#111;border-radius:8px;overflow:hidden}\n.rv img{display:block;width:100%;height:auto}\n.rv .st{display:none}.rv .chips{display:flex;gap:6px;padding:8px;flex-wrap:wrap;background:#1b1b1f}\n.rv button{font:inherit;padding:4px 10px;border-radius:14px;border:1px solid #555;background:#26262b;color:#eee;cursor:pointer}\n.prototype:not([data-story-state]) .st.s1,.prototype[data-story-state=s1] .st.s1,.prototype[data-story-state=s2] .st.s2,\n.prototype[data-story-state=s3] .st.s3{display:block}\n.prototype:not([data-story-state]) button[data-story-to=s1],.prototype[data-story-state=s1] button[data-story-to=s1],\n.prototype[data-story-state=s2] button[data-story-to=s2],.prototype[data-story-state=s3] button[data-story-to=s3]\n{background:#3b5bdb;border-color:#748ffc}\n.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#111}\n.row2{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;background:#111}\n.row3 figure,.row2 figure{margin:0}.row3 figcaption,.row2 figcaption{font:12px system-ui;color:#bbb;padding:4px}\npre.code{margin:0;padding:12px;background:#0d0d10;color:#dfe3ea;font:11.5px/1.45 ui-monospace,monospace;\nwhite-space:pre-wrap;max-height:620px;overflow:auto}\n</style><div class=\"rv\"><img class=\"st s1\" src=\"media/robot-viewer-2026-11-28/shots/v5-dual_arm.png\" alt=\"dual-arm cell\" loading=\"eager\"><img class=\"st s2\" src=\"media/robot-viewer-2026-11-28/shots/v5-ur5e.png\" alt=\"UR5e\" loading=\"eager\"><img class=\"st s3\" src=\"media/robot-viewer-2026-11-28/shots/v5-pendulum.png\" alt=\"pendulum\" loading=\"eager\"><div class=\"chips\"><button data-story-to=\"s1\">dual-arm cell</button><button data-story-to=\"s2\">UR5e</button><button data-story-to=\"s3\">pendulum</button></div></div>",
+   "story": {
+    "title": "Part cards: three states",
+    "steps": [
+     {
+      "label": "Dual-arm cell",
+      "caption": "Both arms' twelve cards and three cameras on one screen, each very small.",
+      "state": "s1",
+      "target": "button[data-story-to=\"s1\"]"
+     },
+     {
+      "label": "UR5e",
+      "caption": "One arm: the cards get room and become readable.",
+      "state": "s2",
+      "target": "button[data-story-to=\"s2\"]"
+     },
+     {
+      "label": "Pendulum",
+      "caption": "Two cards: the servo and its camera.",
+      "state": "s3",
+      "target": "button[data-story-to=\"s3\"]"
+     }
+    ]
+   },
+   "media": [
+    {
+     "label": "Dual-arm cell played 0 → 5 s (real Rerun web viewer)",
+     "caption": "Plays the cell: everything moves at once, nothing to click.",
+     "html": "<video src=\"media/robot-viewer-2026-11-28/video/v5-dual_arm.mp4\" poster=\"media/robot-viewer-2026-11-28/video/v5-dual_arm.webp\" autoplay muted loop playsinline controls style=\"width:100%\"></video>"
+    },
+    {
+     "label": "Same layout function, three robots",
+     "caption": "Nothing per robot: the one blueprint function walks each description tree. Look at how the page grows from one servo to twelve.",
+     "html": "<style>\n.rv{font:13px/1.4 system-ui,sans-serif;color:#e8e8ea;background:#111;border-radius:8px;overflow:hidden}\n.rv img{display:block;width:100%;height:auto}\n.rv .st{display:none}.rv .chips{display:flex;gap:6px;padding:8px;flex-wrap:wrap;background:#1b1b1f}\n.rv button{font:inherit;padding:4px 10px;border-radius:14px;border:1px solid #555;background:#26262b;color:#eee;cursor:pointer}\n.prototype:not([data-story-state]) .st.s1,.prototype[data-story-state=s1] .st.s1,.prototype[data-story-state=s2] .st.s2,\n.prototype[data-story-state=s3] .st.s3{display:block}\n.prototype:not([data-story-state]) button[data-story-to=s1],.prototype[data-story-state=s1] button[data-story-to=s1],\n.prototype[data-story-state=s2] button[data-story-to=s2],.prototype[data-story-state=s3] button[data-story-to=s3]\n{background:#3b5bdb;border-color:#748ffc}\n.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#111}\n.row2{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;background:#111}\n.row3 figure,.row2 figure{margin:0}.row3 figcaption,.row2 figcaption{font:12px system-ui;color:#bbb;padding:4px}\npre.code{margin:0;padding:12px;background:#0d0d10;color:#dfe3ea;font:11.5px/1.45 ui-monospace,monospace;\nwhite-space:pre-wrap;max-height:620px;overflow:auto}\n</style><div class=\"row3\"><figure><img src=\"media/robot-viewer-2026-11-28/shots/v5-pendulum.png\" alt=\"pendulum\"><figcaption>1-DOF pendulum + side camera</figcaption></figure><figure><img src=\"media/robot-viewer-2026-11-28/shots/v5-ur5e.png\" alt=\"ur5e\"><figcaption>UR5e + wrist camera</figcaption></figure><figure><img src=\"media/robot-viewer-2026-11-28/shots/v5-dual_arm.png\" alt=\"dual_arm\"><figcaption>dual-arm cell</figcaption></figure></div>"
+    },
+    {
+     "label": "The layout function",
+     "caption": "The card recursion: no tabs, the tree's shape is the page's.",
+     "html": "<style>\n.rv{font:13px/1.4 system-ui,sans-serif;color:#e8e8ea;background:#111;border-radius:8px;overflow:hidden}\n.rv img{display:block;width:100%;height:auto}\n.rv .st{display:none}.rv .chips{display:flex;gap:6px;padding:8px;flex-wrap:wrap;background:#1b1b1f}\n.rv button{font:inherit;padding:4px 10px;border-radius:14px;border:1px solid #555;background:#26262b;color:#eee;cursor:pointer}\n.prototype:not([data-story-state]) .st.s1,.prototype[data-story-state=s1] .st.s1,.prototype[data-story-state=s2] .st.s2,\n.prototype[data-story-state=s3] .st.s3{display:block}\n.prototype:not([data-story-state]) button[data-story-to=s1],.prototype[data-story-state=s1] button[data-story-to=s1],\n.prototype[data-story-state=s2] button[data-story-to=s2],.prototype[data-story-state=s3] button[data-story-to=s3]\n{background:#3b5bdb;border-color:#748ffc}\n.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#111}\n.row2{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;background:#111}\n.row3 figure,.row2 figure{margin:0}.row3 figcaption,.row2 figcaption{font:12px system-ui;color:#bbb;padding:4px}\npre.code{margin:0;padding:12px;background:#0d0d10;color:#dfe3ea;font:11.5px/1.45 ui-monospace,monospace;\nwhite-space:pre-wrap;max-height:620px;overflow:auto}\n</style><pre class=\"code\">def _card(path: str, part: Part, depth: int) -&gt; rrb.Container:\n    if part.kind == &quot;servo&quot;:\n        return rrb.Horizontal(_position_plot(path, f&quot;{path.split(&#x27;/&#x27;)[-1]} · ° cmd ··· state —&quot;),\n                              _config_view(path, &quot;config&quot;), column_shares=[2, 1.3], name=path)  # fmt: skip\n    if part.kind == &quot;camera&quot;:\n        return rrb.Vertical(_camera_view(path), _config_view(path, &quot;config&quot;), row_shares=[2, 1], name=path)\n    kids = [_card(f&quot;{path}/{c.name}&quot; if path else c.name, c, depth + 1) for c in part.children]\n    box = rrb.Horizontal if depth % 2 == 0 else rrb.Vertical\n    return box(*kids, name=path or part.name)\ndef v5_cards(robot: str, scene: Scene, tab: int = 0) -&gt; rrb.Blueprint:\n    &quot;&quot;&quot;V5: every part a card (plot + config, or image + config), nested to mirror the tree, all visible at once.&quot;&quot;&quot;\n    return _frame(robot, scene, _card(&quot;&quot;, ROBOTS[robot], 0))</pre>"
+    }
+   ],
+   "scores": {
+    "fr1": {
+     "score": 2,
+     "evidence": "On the dual-arm cell each plot is ~60 px tall: command and state overlap into one line except the faulted elbow.",
+     "confidence": "high"
+    },
+    "fr2": {
+     "score": 5,
+     "evidence": "Pure recursion over the tree; a new part is a new card with no edit.",
+     "confidence": "high"
+    },
+    "fr3": {
+     "score": 2,
+     "evidence": "The opposite of 'no huge list': every part is on screen, so the dual-arm cell already crushes the cards.",
+     "confidence": "high"
+    },
+    "fr4": {
+     "score": 3,
+     "evidence": "All cameras always visible, but the wrist cameras are thumbnails in a crowded column.",
+     "confidence": "high"
+    },
+    "fr5": {
+     "score": 2,
+     "evidence": "Config is beside every plot but truncated to its first line at this size.",
+     "confidence": "high"
+    }
+   },
+   "gateResults": {
+    "g1": {
+     "pass": true,
+     "evidence": "The builder only logs to an .rrd; there is no command path and no transport is imported or opened."
+    },
+    "g2": {
+     "pass": true,
+     "evidence": "All 15 recordings (and the tab variants) loaded in the stock Rerun 0.40 web viewer from the saved .rrd with their blueprint, 0 viewer errors, no panic."
+    },
+    "g3": {
+     "pass": true,
+     "evidence": "Every blueprint is _frame(): Horizontal(Spatial3DView, …) with the 3D first; seen in every still."
+    }
+   }
+  }
+ ],
+ "hardGates": [
+  {
+   "id": "g1",
+   "name": "Read-only",
+   "why": "A viewer that can command is not a viewer; it never opens a bus."
+  },
+  {
+   "id": "g2",
+   "name": "Stock Rerun from a saved .rrd with its blueprint",
+   "why": "No custom viewer or server: the layout travels inside the file."
+  },
+  {
+   "id": "g3",
+   "name": "3D view on the left",
+   "why": "Zach: 'definitely we want a 3d view on the left'."
+  }
+ ],
+ "defaultId": "v1",
+ "defaultWhy": "Tabs by part type (80) and Tabs mirror the tree (77) are co-leaders, 3 points apart, so the pick is fragile. V1 wins on big per-joint plots and a complete Config tab; V2 wins on composition (the layout is a registry + recursion) and on keeping each wrist camera with its arm.",
+ "decisionHinge": "How much FR2 (composition) outweighs FR5 (config readability). Move 10 points from FR5 to FR2 and V2 leads 81 to 78. A splice probably beats both: V2's registry and tree tabs, with V1's bigger per-joint plots and a Config tab (or V3's now-table) as the stock view of a group.",
+ "checks": [
+  "Exactly five structural directions",
+  "Same recording and viewport for every variant",
+  "Criteria and gates fixed before building",
+  "Scores carry evidence and confidence"
+ ]
+}
